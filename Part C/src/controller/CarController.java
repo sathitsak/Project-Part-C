@@ -68,6 +68,27 @@ public abstract class CarController {
 	}
 	
 	/**
+	 * Retrieves the car's current X position
+	 */
+	public float getX(){
+		return this.car.getX();
+	}
+	
+	/**
+	 * Retrieves the car's current Y position
+	 */
+	public float getY(){
+		return this.car.getY();
+	}
+	
+	/**
+	 * Retrieves the car's current key
+	 */
+	public int getKey(){
+		return this.car.getKey();
+	}
+	
+	/**
 	 * Returns the car's current velocity.
 	 */
 	public float getSpeed(){
