@@ -128,6 +128,7 @@ public class Simulation extends ApplicationAdapter implements InputProcessor {
 		String key = "K"+Integer.toString(world.getCar().getKey());
 		String health = "H"+Integer.toString(Math.round(world.getCar().getHealth()));
 		String status = key+"/"+health;
+		
 		font.getData().setScale(1.5f);
 		int offset = 1;
 		//Relative to screen size.

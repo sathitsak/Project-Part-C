@@ -1,7 +1,12 @@
 package controller;
 
+import java.util.HashMap;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+
+import tiles.MapTile;
+import utilities.Coordinate;
 import world.Car;
 
 // Manual Controls for the car
@@ -12,6 +17,8 @@ public class ManualController extends CarController{
 	}
 	
 	public void update(float delta){
+		//HashMap<Coordinate, MapTile> currentView = getView();
+		
         if (Gdx.input.isKeyPressed(Input.Keys.B)) {
             applyBrake();
         }

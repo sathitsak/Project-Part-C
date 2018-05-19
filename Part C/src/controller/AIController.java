@@ -2,7 +2,10 @@ package controller;
 
 import java.util.HashMap;
 
+import tiles.HealthTrap;
 import tiles.MapTile;
+import tiles.MapTile.Type;
+import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
@@ -10,7 +13,7 @@ import world.WorldSpatial;
 public class AIController extends CarController {
 	
 	// How many minimum units the wall is away from the player.
-	private int wallSensitivity = 2;
+	private int wallSensitivity =2;
 	
 	
 	private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
@@ -37,12 +40,36 @@ public class AIController extends CarController {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = getView();
 		
+		
 		checkStateChange();
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		Coordinate currentPosition = new Coordinate(getPosition());
+		Coordinate currentPositions = new Coordinate(getPosition());
+		MapTile tile = currentView.get(currentPosition);
+		HealthTrap ttile = new HealthTrap();
+		ttile.getTrap();
+		Type trap = MapTile.Type.TRAP;
+		
+		System.out.println(currentPosition);
+		System.out.println(tile.getType());
+		tile.isType(MapTile.Type.TRAP);
+		System.out.println("CURRENT"+getHealth());
+		float currentHealth = getHealth();
+		
+		float carpastHealth ;
+		carpastHealth = getHealth();
+		
+		
+		
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		// If you are not following a wall initially, find a wall to stick to!
 		if(!isFollowingWall){
 			if(getSpeed() < CAR_SPEED){
 				applyForwardAcceleration();
+				System.out.println("CURRENT1"+getHealth());
+				
 			}
 			// Turn towards the north
 			if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
@@ -64,6 +91,7 @@ public class AIController extends CarController {
 		else{
 			
 			// Readjust the car if it is misaligned.
+			System.out.println("CURRENT2"+getHealth());
 			readjust(lastTurnDirection,delta);
 			
 			if(isTurningRight){
@@ -98,7 +126,7 @@ public class AIController extends CarController {
 				isTurningLeft = true;
 			}
 		}
-		
+		System.out.println("CURREN3"+getHealth());
 		
 
 	}
@@ -322,6 +350,21 @@ public class AIController extends CarController {
 	 * checkNorth will check up to wallSensitivity amount of tiles to the top.
 	 * checkSouth will check up to wallSensitivity amount of tiles below.
 	 */
+	
+	
+	
+	public boolean checkHealthTrap(HashMap<Coordinate, MapTile> currentView) {
+		Coordinate currentPosition = new Coordinate(getPosition());
+		for(int i = 0; i <= wallSensitivity; i++){
+			MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
+			if(tile.isType(MapTile.Type.TRAP)){
+				
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public boolean checkEast(HashMap<Coordinate, MapTile> currentView){
 		// Check tiles to my right
 		Coordinate currentPosition = new Coordinate(getPosition());
