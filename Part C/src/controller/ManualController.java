@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
+import tiles.LavaTrap;
 import tiles.MapTile;
 import tiles.TrapTile;
 import utilities.Coordinate;
@@ -26,7 +27,14 @@ public class ManualController extends CarController{
 		
 		if(MapTile.Type.TRAP == currentType){
 			System.out.println("Trap type ="+((TrapTile) currentTile).getTrap());
+			if(((TrapTile) currentTile).getTrap()=="lava"){
+				
+				TrapTile a = (TrapTile) currentTile;
+				LavaTrap b = (LavaTrap) a;
+				System.out.println("GET KEY "+b.getKey());
+			}
 		}
+		
         if (Gdx.input.isKeyPressed(Input.Keys.B)) {
             applyBrake();
         }
