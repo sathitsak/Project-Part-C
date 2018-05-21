@@ -8,6 +8,7 @@ import tiles.MapTile.Type;
 import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
+import world.World;
 import world.WorldSpatial;
 
 public class AIController extends CarController {
@@ -45,13 +46,29 @@ public class AIController extends CarController {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		Coordinate currentPosition = new Coordinate(getPosition());
-		Coordinate currentPositions = new Coordinate(getPosition());
+		MapTile currentTile = currentView.get(currentPosition);
+		MapTile.Type currentType = currentTile.getType();
+		if(MapTile.Type.TRAP == currentType){
+			System.out.println("TRAPRARERE"+((TrapTile) currentTile).getTrap());
+		}
+		
+		
 		MapTile tile = currentView.get(currentPosition);
 		HealthTrap ttile = new HealthTrap();
 		ttile.getTrap();
+		if(tile.isType(MapTile.Type.TRAP)) {
+		ttile.getTrap();
+			
+			Type a = Type.TRAP;
+			MapTile till= new MapTile(a);
+		//	TrapTile trap = new TrapTile(a);
+			
+		}
 		Type trap = MapTile.Type.TRAP;
 		
 		System.out.println(currentPosition);
+		System.out.println("getKey"+getKey());
+		
 		System.out.println(tile.getType());
 		tile.isType(MapTile.Type.TRAP);
 		System.out.println("CURRENT"+getHealth());
