@@ -24,4 +24,7 @@ public class TileCollector {
 	public tiles.MapTile.Type getType(){
 		return tileType;
 	}
+	public int getKeyNum(){
+		return keyNumber;
+	}
 }

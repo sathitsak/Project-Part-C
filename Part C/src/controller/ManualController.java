@@ -19,6 +19,7 @@ public class ManualController extends CarController{
 	ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>();
 	ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
 	ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
+	ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
 	
 	public ManualController(Car car){
 		super(car);
@@ -68,10 +69,18 @@ public class ManualController extends CarController{
 				LavaTrap b = (LavaTrap) a;
 				
 				if(b.getKey() > 0) {
-					System.out.println("GET KEY "+b.getKey());
+					//System.out.println("GET KEY "+b.getKey());
 				return true;}
 			}
 		}return false;
+	}
+	
+	public int getKeyNum(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+		MapTile currentTile = currentView.get(currentPosition);	
+		TrapTile a = (TrapTile) currentTile;
+		LavaTrap b = (LavaTrap) a;
+		return b.getKey();
+		
 	}
 	public boolean landOnHealTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 		
@@ -108,22 +117,28 @@ public class ManualController extends CarController{
 	
 	public void recordTileTypeAroundTheCar(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 		//Quadrant 1
+		//Scan every possible tile in Q1 and collect their Type and location to TileCollector
 				for(int y=4; y>-1;y--) {
 					for(int x=4; x>-1;x--) {
 						MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y+y));				
 						Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y+y);
-						
+		//If found tile with key store in special TileCollector				
 						if(landOnLavaTileWithKey(currentView,scanCoo)) {	
 							
 							if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
 									keyTile.add(scanCoo);
 								//	System.out.println("KEY TILE"+keyTile);
+									int keyNum = getKeyNum(currentView, scanCoo);
+									TileCollector keyTC = new TileCollector(scanCoo,keyNum);
+									keyCollectorArrayList.add(keyTC);
+									System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
+									
 								}
 								
 							
 						}
 						
-						
+		// For healTile we just going to remember it location so we use Coordinator				
 						if(landOnHealTile(currentView,scanCoo)) {
 							if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
 								healTile.add(scanCoo);
@@ -131,6 +146,7 @@ public class ManualController extends CarController{
 							}
 							
 						}
+		// Record every Tile				
 						MapTile.Type scanType = scanTile.getType();
 						TileCollector tctile = new TileCollector(scanCoo,scanType);
 						
@@ -147,8 +163,14 @@ public class ManualController extends CarController{
 				if(landOnLavaTileWithKey(currentView,scanCoo)) {	
 					
 					if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
-							keyTile.add(scanCoo);
+							//keyTile.add(scanCoo);
 							//System.out.println("KEY TILE"+keyTile);
+						keyTile.add(scanCoo);
+						//	System.out.println("KEY TILE"+keyTile);
+							int keyNum = getKeyNum(currentView, scanCoo);
+							TileCollector keyTC = new TileCollector(scanCoo,keyNum);
+							keyCollectorArrayList.add(keyTC);
+							System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 						}
 						
 					
@@ -180,8 +202,14 @@ public class ManualController extends CarController{
 						if(landOnLavaTileWithKey(currentView,scanCoo)) {	
 							
 							if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
-									keyTile.add(scanCoo);
+									//keyTile.add(scanCoo);
 									//System.out.println("KEY TILE"+keyTile);
+								keyTile.add(scanCoo);
+								//	System.out.println("KEY TILE"+keyTile);
+									int keyNum = getKeyNum(currentView, scanCoo);
+									TileCollector keyTC = new TileCollector(scanCoo,keyNum);
+									keyCollectorArrayList.add(keyTC);
+									System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 								}
 								
 							
@@ -214,8 +242,14 @@ public class ManualController extends CarController{
 					if(landOnLavaTileWithKey(currentView,scanCoo)) {	
 					
 					if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
-							keyTile.add(scanCoo);
+							//keyTile.add(scanCoo);
 							//System.out.println("KEY TILE"+keyTile);
+						keyTile.add(scanCoo);
+						//	System.out.println("KEY TILE"+keyTile);
+							int keyNum = getKeyNum(currentView, scanCoo);
+							TileCollector keyTC = new TileCollector(scanCoo,keyNum);
+							keyCollectorArrayList.add(keyTC);
+							System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 						}
 						
 					
@@ -229,10 +263,8 @@ public class ManualController extends CarController{
 					}
 					
 				}
-
 				MapTile.Type scanType = scanTile.getType();
-				TileCollector tctile = new TileCollector(scanCoo,scanType);
-				
+				TileCollector tctile = new TileCollector(scanCoo,scanType);			
 				tileCollectorArrayList.add(tctile);
 						
 						
