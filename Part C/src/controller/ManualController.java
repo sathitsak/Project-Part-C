@@ -33,20 +33,29 @@ public class ManualController extends CarController{
 		
 		
 		
-		if(landOnLavaTileWithKey(currentView,currentPosition)) {
-			
-			//addtilePosition(currentPosition,keyTile);
-			System.out.println("KEY TILE"+keyTile);
-			keyTile.add(currentPosition);
-			//printOutArrayListMember(keyTile);
+		if(landOnLavaTileWithKey(currentView,currentPosition)) {	
+	
+			if(searchForDuplicateCoordinate(keyTile, currentPosition) == false) {
+					keyTile.add(currentPosition);
+					System.out.println("KEY TILE"+keyTile);
+				}
+				
 			
 		}
 		if(landOnHealTile(currentView,currentPosition)) {
+			if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
+				healTile.add(currentPosition);
+				System.out.println("Heal TILE"+healTile);
+			}
 			
-			//addtilePosition(currentPosition,healTile);
-			System.out.println("Heal TILE"+healTile);
-			healTile.add(currentPosition);
-			printOutArrayListMember(healTile);
+				
+			//	healTile.add(currentPosition);
+				//System.out.println("Heal TILE"+healTile);
+				
+
+			
+			
+			
 			
 		}
 		
@@ -106,5 +115,19 @@ public class ManualController extends CarController{
 			System.out.println("The"+i+"of arrayList is"+arrayList.get(i));
 		}
 		
+	}
+	public boolean searchForDuplicateCoordinate(ArrayList<Coordinate> arrayList, Coordinate coordinate) {
+		for(int i=0; i<arrayList.size();i++) {
+			Coordinate coo = arrayList.get(i);
+			//System.out.println("COO ="+coo);
+			//System.out.println("COORDINATE ="+coordinate);
+			if(coordinate.equals(coo)) {
+				System.out.println("Duplicate");
+				return true;
+			}
+		}
+		
+		System.out.println("not dup");
+		return false;
 	}
 }
