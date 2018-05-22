@@ -34,7 +34,7 @@ public class ManualController extends CarController{
 		MapTile currentTile = currentView.get(currentPosition);
 		
 		recordTileTypeAroundTheCar(currentView,currentPosition);
-		
+		/*
 		if(landOnLavaTileWithKey(currentView,currentPosition)) {	
 	
 			if(searchForDuplicateCoordinate(keyTile, currentPosition) == false) {
@@ -44,7 +44,7 @@ public class ManualController extends CarController{
 				
 			
 		}
-		/*
+		
 		if(landOnHealTile(currentView,currentPosition)) {
 			if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
 				healTile.add(currentPosition);
@@ -91,7 +91,7 @@ public class ManualController extends CarController{
 				LavaTrap b = (LavaTrap) a;
 				
 				if(b.getKey() > 0) {
-					//System.out.println("GET KEY "+b.getKey());
+					System.out.println("GET KEY "+b.getKey());
 				return true;}
 			}
 		}return false;
@@ -136,12 +136,20 @@ public class ManualController extends CarController{
 					for(int x=4; x>-1;x--) {
 						MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y+y));				
 						Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y+y);
-						
+						if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+							
+							if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+									keyTile.add(scanCoo);
+									System.out.println("KEY TILE"+keyTile);
+								}
+								
+							
+						}
 						
 						
 						if(landOnHealTile(currentView,scanCoo)) {
-							if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
-								healTile.add(currentPosition);
+							if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+								healTile.add(scanCoo);
 								System.out.println("Heal TILE"+healTile);
 							}
 							
@@ -163,10 +171,19 @@ public class ManualController extends CarController{
 				MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y+y));				
 				Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y+y);
 				
+				if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+					
+					if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+							keyTile.add(scanCoo);
+							System.out.println("KEY TILE"+keyTile);
+						}
+						
+					
+				}
 				
 				if(landOnHealTile(currentView,scanCoo)) {
-					if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
-						healTile.add(currentPosition);
+					if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+						healTile.add(scanCoo);
 						System.out.println("Heal TILE"+healTile);
 					}
 					
@@ -186,12 +203,20 @@ public class ManualController extends CarController{
 					for(int x=4; x>-1;x--) {
 						MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y-y));				
 						Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y-y);
-						
+						if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+							
+							if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+									keyTile.add(scanCoo);
+									System.out.println("KEY TILE"+keyTile);
+								}
+								
+							
+						}
 						
 						
 						if(landOnHealTile(currentView,scanCoo)) {
-							if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
-								healTile.add(currentPosition);
+							if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+								healTile.add(scanCoo);
 								System.out.println("Heal TILE"+healTile);
 							}
 							
@@ -211,7 +236,15 @@ public class ManualController extends CarController{
 			for(int x=0; x<5;x++) {
 				MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y-y));				
 				Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y-y);
-				
+					if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+					
+					if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+							keyTile.add(scanCoo);
+							System.out.println("KEY TILE"+keyTile);
+						}
+						
+					
+				}
 				
 				
 				if(landOnHealTile(currentView,scanCoo)) {
