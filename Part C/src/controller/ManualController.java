@@ -130,4 +130,8 @@ public class ManualController extends CarController{
 		System.out.println("not dup");
 		return false;
 	}
+	
+	public void recordTileTypeAroundTheCar(Coordinate coordinate) {
+		
+	}
 }
