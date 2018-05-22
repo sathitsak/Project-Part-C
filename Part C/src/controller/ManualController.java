@@ -57,12 +57,11 @@ public class ManualController extends CarController{
 	}
 	
 	public boolean landOnLavaTileWithKey(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
-		//HashMap<Coordinate, MapTile> currentView = getView();
-		//Coordinate currentPosition = new Coordinate(getPosition());
+		
 		MapTile currentTile = currentView.get(currentPosition);
 		MapTile.Type currentType = currentTile.getType();
 		if(MapTile.Type.TRAP == currentType){
-			//System.out.println("Trap type ="+((TrapTile) currentTile).getTrap());
+			
 			if(((TrapTile) currentTile).getTrap()=="lava"){
 				
 				TrapTile a = (TrapTile) currentTile;
@@ -81,7 +80,7 @@ public class ManualController extends CarController{
 		if(MapTile.Type.TRAP == currentType){
 			
 			if(((TrapTile) currentTile).getTrap()=="health"){
-				//System.out.println("Trap type ="+((TrapTile) currentTile).getTrap());
+				
 				return true;
 			}
 		}return false;
@@ -96,10 +95,9 @@ public class ManualController extends CarController{
 	public boolean searchForDuplicateCoordinate(ArrayList<Coordinate> arrayList, Coordinate coordinate) {
 		for(int i=0; i<arrayList.size();i++) {
 			Coordinate coo = arrayList.get(i);
-			//System.out.println("COO ="+coo);
-			//System.out.println("COORDINATE ="+coordinate);
+			;
 			if(coordinate.equals(coo)) {
-				//System.out.println("Duplicate");
+			
 				return true;
 			}
 		}
@@ -135,13 +133,9 @@ public class ManualController extends CarController{
 						}
 						MapTile.Type scanType = scanTile.getType();
 						TileCollector tctile = new TileCollector(scanCoo,scanType);
-						//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
-						tileCollectorArrayList.add(tctile);
-						//int mapHeight = World.MAP_HEIGHT;
-						//int mapWeight = World.MAP_WIDTH;
-						//System.out.println("mapH = " +mapHeight + "mapW = " + mapWeight);
 						
-						//System.out.println(tileCollectorArrayList);
+						tileCollectorArrayList.add(tctile);
+						
 					}
 				}
 		//Quadrant 2
@@ -170,7 +164,7 @@ public class ManualController extends CarController{
 				
 				MapTile.Type scanType = scanTile.getType();
 				TileCollector tctile = new TileCollector(scanCoo,scanType);
-				//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
+				
 				tileCollectorArrayList.add(tctile);
 				
 				
