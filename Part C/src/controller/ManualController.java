@@ -11,12 +11,14 @@ import tiles.MapTile;
 import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
+import world.World;
 
 // Manual Controls for the car
 public class ManualController extends CarController{
 	
 	ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>();
 	ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
+	ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
 	
 	public ManualController(Car car){
 		super(car);
@@ -31,7 +33,7 @@ public class ManualController extends CarController{
 		Coordinate currentPosition = new Coordinate(getPosition());
 		MapTile currentTile = currentView.get(currentPosition);
 		
-		
+		recordTileTypeAroundTheCar(currentView,currentPosition);
 		
 		if(landOnLavaTileWithKey(currentView,currentPosition)) {	
 	
@@ -47,7 +49,7 @@ public class ManualController extends CarController{
 				healTile.add(currentPosition);
 				System.out.println("Heal TILE"+healTile);
 			}
-			
+		
 				
 			//	healTile.add(currentPosition);
 				//System.out.println("Heal TILE"+healTile);
@@ -131,7 +133,64 @@ public class ManualController extends CarController{
 		return false;
 	}
 	
-	public void recordTileTypeAroundTheCar(Coordinate coordinate) {
-		
+	public void recordTileTypeAroundTheCar(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+		//Quadrant 1
+				for(int y=4; y>-1;y--) {
+					for(int x=4; x>-1;x--) {
+						MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y+y));				
+						Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y+y);
+						MapTile.Type scanType = scanTile.getType();
+						TileCollector tctile = new TileCollector(scanCoo,scanType);
+						//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
+						tileCollectorArrayList.add(tctile);
+						//int mapHeight = World.MAP_HEIGHT;
+						//int mapWeight = World.MAP_WIDTH;
+						//System.out.println("mapH = " +mapHeight + "mapW = " + mapWeight);
+						
+						//System.out.println(tileCollectorArrayList);
+					}
+				}
+		//Quadrant 2
+		for(int y=4; y>-1;y--) {
+			for(int x=0; x<5;x++) {
+				MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y+y));				
+				Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y+y);
+				MapTile.Type scanType = scanTile.getType();
+				TileCollector tctile = new TileCollector(scanCoo,scanType);
+				//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
+				tileCollectorArrayList.add(tctile);
+				
+				
+				
+			}
+		}
+		//Quadrant 3
+				for(int y=0; y<5;y++) {
+					for(int x=4; x>-1;x--) {
+						MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y-y));				
+						Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y-y);
+						MapTile.Type scanType = scanTile.getType();
+						TileCollector tctile = new TileCollector(scanCoo,scanType);
+						//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
+						tileCollectorArrayList.add(tctile);
+						
+						
+						
+					}
+				}
+		//Quadrant 4
+		for(int y=4; y>-1;y--) {
+			for(int x=0; x<5;x++) {
+				MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y-y));				
+				Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y-y);
+				MapTile.Type scanType = scanTile.getType();
+				TileCollector tctile = new TileCollector(scanCoo,scanType);
+				System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
+				tileCollectorArrayList.add(tctile);
+						
+						
+						
+									}
+							}				
 	}
 }
