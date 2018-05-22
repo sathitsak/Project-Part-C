@@ -44,6 +44,7 @@ public class ManualController extends CarController{
 				
 			
 		}
+		/*
 		if(landOnHealTile(currentView,currentPosition)) {
 			if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
 				healTile.add(currentPosition);
@@ -53,14 +54,9 @@ public class ManualController extends CarController{
 				
 			//	healTile.add(currentPosition);
 				//System.out.println("Heal TILE"+healTile);
-				
-
-			
-			
-			
 			
 		}
-		
+		 */
         if (Gdx.input.isKeyPressed(Input.Keys.B)) {
             applyBrake();
         }
@@ -88,14 +84,14 @@ public class ManualController extends CarController{
 		MapTile currentTile = currentView.get(currentPosition);
 		MapTile.Type currentType = currentTile.getType();
 		if(MapTile.Type.TRAP == currentType){
-			System.out.println("Trap type ="+((TrapTile) currentTile).getTrap());
+			//System.out.println("Trap type ="+((TrapTile) currentTile).getTrap());
 			if(((TrapTile) currentTile).getTrap()=="lava"){
 				
 				TrapTile a = (TrapTile) currentTile;
 				LavaTrap b = (LavaTrap) a;
 				
-				if(b.getKey() != 0) {
-					System.out.println("GET KEY "+b.getKey());
+				if(b.getKey() > 0) {
+					//System.out.println("GET KEY "+b.getKey());
 				return true;}
 			}
 		}return false;
@@ -105,8 +101,9 @@ public class ManualController extends CarController{
 		MapTile currentTile = currentView.get(currentPosition);
 		MapTile.Type currentType = currentTile.getType();
 		if(MapTile.Type.TRAP == currentType){
-			System.out.println("Trap type ="+((TrapTile) currentTile).getTrap());
+			
 			if(((TrapTile) currentTile).getTrap()=="health"){
+				//System.out.println("Trap type ="+((TrapTile) currentTile).getTrap());
 				return true;
 			}
 		}return false;
@@ -124,12 +121,12 @@ public class ManualController extends CarController{
 			//System.out.println("COO ="+coo);
 			//System.out.println("COORDINATE ="+coordinate);
 			if(coordinate.equals(coo)) {
-				System.out.println("Duplicate");
+				//System.out.println("Duplicate");
 				return true;
 			}
 		}
 		
-		System.out.println("not dup");
+		//System.out.println("not dup");
 		return false;
 	}
 	
@@ -139,6 +136,16 @@ public class ManualController extends CarController{
 					for(int x=4; x>-1;x--) {
 						MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y+y));				
 						Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y+y);
+						
+						
+						
+						if(landOnHealTile(currentView,scanCoo)) {
+							if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
+								healTile.add(currentPosition);
+								System.out.println("Heal TILE"+healTile);
+							}
+							
+						}
 						MapTile.Type scanType = scanTile.getType();
 						TileCollector tctile = new TileCollector(scanCoo,scanType);
 						//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
@@ -155,6 +162,16 @@ public class ManualController extends CarController{
 			for(int x=0; x<5;x++) {
 				MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y+y));				
 				Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y+y);
+				
+				
+				if(landOnHealTile(currentView,scanCoo)) {
+					if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
+						healTile.add(currentPosition);
+						System.out.println("Heal TILE"+healTile);
+					}
+					
+				}
+				
 				MapTile.Type scanType = scanTile.getType();
 				TileCollector tctile = new TileCollector(scanCoo,scanType);
 				//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
@@ -169,6 +186,17 @@ public class ManualController extends CarController{
 					for(int x=4; x>-1;x--) {
 						MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y-y));				
 						Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y-y);
+						
+						
+						
+						if(landOnHealTile(currentView,scanCoo)) {
+							if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
+								healTile.add(currentPosition);
+								System.out.println("Heal TILE"+healTile);
+							}
+							
+						}
+						
 						MapTile.Type scanType = scanTile.getType();
 						TileCollector tctile = new TileCollector(scanCoo,scanType);
 						//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
@@ -183,9 +211,20 @@ public class ManualController extends CarController{
 			for(int x=0; x<5;x++) {
 				MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y-y));				
 				Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y-y);
+				
+				
+				
+				if(landOnHealTile(currentView,scanCoo)) {
+					if(searchForDuplicateCoordinate(healTile, currentPosition) == false) {
+						healTile.add(currentPosition);
+						System.out.println("Heal TILE"+healTile);
+					}
+					
+				}
+
 				MapTile.Type scanType = scanTile.getType();
 				TileCollector tctile = new TileCollector(scanCoo,scanType);
-				System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
+				//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
 				tileCollectorArrayList.add(tctile);
 						
 						
