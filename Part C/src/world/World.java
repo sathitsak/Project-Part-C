@@ -50,7 +50,7 @@ public class World {
 		MAP_HEIGHT = roadLayer.getHeight();
 		MAP_WIDTH = roadLayer.getWidth();
 		int key = initializeMap(map);
-		
+				
 		car = new Car(new Sprite(new Texture("sprites/car2.png")));
 		car.setKey(key); // Set the car key to the key that will unlock the key with the highest number
 		// Set car size relative to the map scaling.
@@ -184,6 +184,20 @@ public class World {
 			}
 		}
 		return providedMapTiles;	
+	}
+	
+	public int getWidthInTiles() {
+		return MAP_WIDTH;
+	}
+	
+	public int getHeightInTiles() {
+		return MAP_HEIGHT;
+	}
+	
+	public boolean isBlocked(int x, int y) {
+		Coordinate coord = new Coordinate(x,y);
+		MapTile tile = mapTiles.get(coord);
+		return tile.isType(MapTile.Type.WALL);
 	}
 	
 }
