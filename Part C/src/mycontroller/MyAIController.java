@@ -3,11 +3,16 @@ package mycontroller;
 import controller.CarController;
 import controller.TestTileCollector;
 import world.Car;
+import world.World;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
+import tiles.LavaTrap;
 import tiles.MapTile;
+import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
@@ -16,121 +21,220 @@ public class MyAIController extends CarController{
 		private int wallSensitivity = 2;
 		
 		
+		HashMap<Coordinate, MapTile> maze = new HashMap<Coordinate, MapTile>();
+		HashMap<Coordinate, Integer> KeyMap = new HashMap<Coordinate, Integer>();
+		ArrayList<Coordinate> HealMap = new ArrayList<Coordinate>();
+		
+		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
+		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
+		
+		int totalKey = getKey();
+//		int totalTile = 
+		float currentHealth = getHealth();
+		
 		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 		private boolean isTurningLeft = false;
 		private boolean isTurningRight = false; 
+		private boolean NextKey = false;
 		private WorldSpatial.Direction previousState = null; // Keeps track of the previous state
 		
-		private PathFinder finder;
+		Path testPath;
+		PathFinder finder;
 		
 		// Car Speed to move at
-		private final float CAR_SPEED = 3;
+		private final double CAR_SPEED = 1.25;
+		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
 		private int EAST_THRESHOLD = 3;
+		private static final int SensorLimit = 4;
+		private static final int NoChange = 0;
+		private static int j = 1;
+		boolean FinishPath = true;
 		
 		public MyAIController(Car car) {
 			super(car);
-			finder = new AStarPathFinder(500, false);
-			ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
-			ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
-			ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
-			ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
 		}
 		
 		Coordinate initialGuess;
 		boolean notSouth = true;
+		
 		@Override
 		public void update(float delta) {
+			currentPosition = new Coordinate(getPosition());
 			
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
 			
+			//Read current view into internal map
+			Iterator it = currentView.entrySet().iterator();
+			while(it.hasNext()) {
+				Map.Entry tile = (Map.Entry)it.next();
+				if(!maze.containsKey(tile.getKey())) {
+					MapTile mt = (MapTile)tile.getValue();
+					Coordinate Coord = (Coordinate)tile.getKey();
+					
+					
+					//Place location of traps etc in maze
+					maze.put(Coord, mt);
+
+					//Add key to key hashmap if it exists
+					if(ContainsKey(mt) != 0) {
+						KeyMap.put(Coord, ContainsKey(mt));
+					}
+					//Add heal to array list if found
+					if(ContainsHeal(mt)) {
+						HealMap.add(Coord);
+					}
+					
+				}
+			}
 			
 			
 			
 			
-			
-			
-//			Path testPath = finder.findPath(2, 3, 21, 12);
-			
+			//If path is finished find a new one
+			System.out.println(FinishPath);
+//			if(FinishPath) {
+				//Path finding algorithm
+					finder = new AStarPathFinder(maze, 500, false);	
+					
+					//If you have found the next key, path to it over everything else
+					Iterator KeyIt = KeyMap.entrySet().iterator();
+					while(KeyIt.hasNext()) {
+						Map.Entry Key = (Map.Entry)KeyIt.next();											
+						if((int)Key.getValue() == totalKey - 1) {
+							Coordinate KeyCo = (Coordinate)Key.getKey();
+							testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, KeyCo.x, KeyCo.y);
+							NextKey = true;
+						}
+					}
+					
+					//Otherwise search as normal
+					if(NextKey == false) {
+						testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, NewTarget().x , 3);
+					}
+
+//					FinishPath = false;
+//				}
+
 
 			
-//			int i = 0;
-//			
-//			while(i < testPath.getLength()) {
-//				System.out.println(testPath.getX(i) + "," + testPath.getY(i));
-//				i++;
-//			}
 
-			
-			
-//			checkStateChange();
-//
-//			// If you are not following a wall initially, find a wall to stick to!
-//			if(!isFollowingWall){
-//				if(getSpeed() < CAR_SPEED){
-//					applyForwardAcceleration();
+				//As long as the path exists
+			if(testPath != null) {
+												
+//				//Print suggested path
+//				int i = 0;
+//				while(i < testPath.getLength()) {
+//					System.out.println(testPath.getX(i) + "," + testPath.getY(i));
+//					i++;
 //				}
-//				// Turn towards the north
-//				if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
-//					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-//					applyLeftTurn(getOrientation(),delta);
-//				}
-//				if(checkNorth(currentView)){
-//					// Turn right until we go back to east!
-//					if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
-//						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-//						applyRightTurn(getOrientation(),delta);
-//					}
-//					else{
-//						isFollowingWall = true;
-//					}
-//				}
-//			}
-//			// Once the car is already stuck to a wall, apply the following logic
-//			else{
-//				
-//				// Readjust the car if it is misaligned.
-//				readjust(lastTurnDirection,delta);
-//				
-//				if(isTurningRight){
-//					applyRightTurn(getOrientation(),delta);
-//				}
-//				else if(isTurningLeft){
-//					// Apply the left turn if you are not currently near a wall.
-//					if(!checkFollowingWall(getOrientation(),currentView)){
-//						applyLeftTurn(getOrientation(),delta);
-//					}
-//					else{
-//						isTurningLeft = false;
-//					}
-//				}
-//				// Try to determine whether or not the car is next to a wall.
-//				else if(checkFollowingWall(getOrientation(),currentView)){
-//					// Maintain some velocity
-//					if(getSpeed() < CAR_SPEED){
-//						applyForwardAcceleration();
-//					}
-//					// If there is wall ahead, turn right!
-//					if(checkWallAhead(getOrientation(),currentView)){
-//						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-//						isTurningRight = true;				
-//						
-//					}
-//
-//				}
-//				// This indicates that I can do a left turn if I am not turning right
-//				else{
-//					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-//					isTurningLeft = true;
-//				}
-//			}
-//			
-//			
+				
+				//If within initially sensed range and not fully incremented through
+				if(	j < testPath.getLength())
+	//					&& testPath.getX(j) <= testPath.getX(0) + SensorLimit
+	//					&& testPath.getX(j) >= testPath.getX(0) - SensorLimit
+	//					&& testPath.getY(j) <= testPath.getY(0) + SensorLimit
+	//					&& testPath.getY(j) >= testPath.getY(0) - SensorLimit) 
+				{
+					
+					
+					//Create next step for car movement
+					Coordinate nextStep = FollowStep(testPath, j, currentPosition);
+					System.out.println(FollowStep(testPath, j, currentPosition));
+					
+					/////////////////////////////////Start driving to path//////////////////////////////////////////////////////////////////
+					
+					//If Y changes
+					if(nextStep.y != NoChange) {
+						//If its northwards
+						if(nextStep.y > NoChange) {
+							//If not facing north, face north and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+								if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
+								}
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
+									}
+							}
+						}
+						else {
+							//If not facing south, face south and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
+								if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
+								}
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
+									}
+							}
+						}
+					}
+					//If X changes
+					else if(nextStep.x != NoChange) {
+						//If its eastwards
+						if(nextStep.x > NoChange) {
+							//If not facing East, face east and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+								if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
+								}
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
+									}
+							}
+						}
+						else {
+							//If not facing west, face west and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.WEST)){
+								if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
+								}
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
+									}
+							}
+						}
+					}
+					
+					if(getSpeed() < CAR_SPEED) {
+						applyForwardAcceleration();
+					}
+	
+					
+				}
+				
+				//Increment index and brake if at current tile
+				if(j < testPath.getLength() && currentPosition.x == testPath.getX(j) && currentPosition.y == testPath.getY(j)) {
+					applyBrake();
+					j++;
+				}
+				
+				//Reset counter and pathchecking boolean
+				if(j == testPath.getLength()) {
+					j = 0;
+					NextKey = false;
+					FinishPath = true;
+				}
+							
+				System.out.println("KICKED");
+			}
 
 		}
+		
+		
 		
 		/**
 		 * Readjust the car to the orientation we are in.
@@ -399,5 +503,183 @@ public class MyAIController extends CarController{
 			return false;
 		}
 		
+		public boolean searchForDuplicateCoordinate(ArrayList<Coordinate> arrayList, Coordinate coordinate) {
+			for(int i=0; i<arrayList.size();i++) {
+				Coordinate coo = arrayList.get(i);
+				;
+				if(coordinate.equals(coo)) {
+				
+					return true;
+				}
+			}
+			
+			//System.out.println("not dup");
+			return false;
+		}
+		
+		public boolean haveOneHealTile() {
+			if (healTile.size()>0) {
+				return true;
+			}
+			return false;
+		}
+		
+		public boolean sameTile(ArrayList<Coordinate> collection,Coordinate current) {
+			for(int i=0;i<collection.size();i++) {
+			if(collection.get(i) == current) {
+				System.out.println("SAME TILE");
+				return true;
+			}
+				
+			}
+			
+			return false;
+			
+		}
+		
+		public void addtilePosition(Coordinate currentPosition, ArrayList<Coordinate> collection) {
+			collection.add(currentPosition);
+		}
+		
+		public boolean landOnLavaTileWithKey(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			
+			MapTile currentTile = currentView.get(currentPosition);
+			MapTile.Type currentType = currentTile.getType();
+			if(MapTile.Type.TRAP == currentType){
+				
+				if(((TrapTile) currentTile).getTrap()=="lava"){
+					
+					TrapTile a = (TrapTile) currentTile;
+					LavaTrap b = (LavaTrap) a;
+					
+					if(b.getKey() > 0) {
+						//System.out.println("GET KEY "+b.getKey());
+					return true;}
+				}
+			}return false;
+		}
+		
+		public int getKeyNum(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			MapTile currentTile = currentView.get(currentPosition);	
+			TrapTile a = (TrapTile) currentTile;
+			LavaTrap b = (LavaTrap) a;
+				
+			return b.getKey();
+			
+		}
+		public boolean landOnHealTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			
+			MapTile currentTile = currentView.get(currentPosition);
+			MapTile.Type currentType = currentTile.getType();
+			if(MapTile.Type.TRAP == currentType){
+				
+				if(((TrapTile) currentTile).getTrap()=="health"){
+					
+					return true;
+				}
+			}return false;
+		}
+		
+		//Print list of tiles
+		public void printMaze() {
+			Iterator it = this.maze.entrySet().iterator();
+			
+			while(it.hasNext()) {
+				Map.Entry tile = (Map.Entry)it.next();
+				MapTile mt = (MapTile) tile.getValue();
+				System.out.print("Coords: " + (Coordinate)tile.getKey() +" , TileType: " + mt.getType() + " ");
+				if(mt.getType().toString().equals("TRAP")) {
+					TrapTile tt = (TrapTile) mt;
+					tt.getTrap();
+					System.out.print("Trap type: " + tt.getTrap() + " ");
+					if(tt.getTrap().equals("lava")) {
+						LavaTrap lt = (LavaTrap) tt;
+						if(lt.getKey() != 0) {
+							System.out.print("Contains Key: " + lt.getKey());
+						}
+					}
+				}
+				System.out.print(" LENGTH:" + maze.size() +"\n");
+				
+//				it.remove();
+			}
+			
+		}
+		
+		
+		//Check if MapTile contains key
+		public int ContainsKey(MapTile mt) {
+			if(mt.getType().toString().equals("TRAP")) {
+				TrapTile tt = (TrapTile) mt;
+				if(tt.getTrap().equals("lava")) {
+					LavaTrap lt = (LavaTrap) tt;
+					if(lt.getKey() != 0) {
+						return lt.getKey();
+					}
+				}
+			}
+			return 0;
+		}
+		
+		//Check if heal tile
+		public boolean ContainsHeal(MapTile mt) {
+			if(mt.getType().toString().equals("TRAP")) {
+				TrapTile tt = (TrapTile) mt;
+				if(tt.getTrap().equals("health")) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		public HashMap<Coordinate, MapTile> getMap() {
+			return maze;
+		}
+		
+		//Check if solid tile
+		public boolean IsBlocked(int x, int y) {
+			Coordinate coord = new Coordinate(x, y);
+			MapTile mt = null;
+			if(maze.containsKey(coord)) {
+				mt = maze.get(coord);
+			}
+			else {
+				return false;
+			}
+			if(mt.getType().toString().equals("WALL") || mt.getType().toString().equals("EMPTY")) {
+				return true;
+			}
+			
+			return false;
+		}
+		
+//		returns coordinate to know movement distance
+		public Coordinate FollowStep(Path path, int index, Coordinate currentPosition) {
+			Coordinate nextMove = new Coordinate(path.getX(index) - currentPosition.x, 
+					path.getY(index) - currentPosition.y);
+			return nextMove;
+		}
 
+		
+		//Pick new coordinates for pathfinding
+		public Coordinate NewTarget() {
+
+			int newX = currentPosition.x;
+			int newY = currentPosition.y;
+			
+			Iterator it = this.maze.entrySet().iterator();
+			
+			while(it.hasNext()) {
+				Map.Entry tile = (Map.Entry)it.next();
+				Coordinate Coord = (Coordinate)tile.getKey();
+				if(newX < Coord.x && Coord.x < World.MAP_WIDTH) {
+					newX = Coord.x;
+				}
+			}
+			
+			Coordinate coord = new Coordinate(newX, newY);
+			return coord;
+		}
+		
 }

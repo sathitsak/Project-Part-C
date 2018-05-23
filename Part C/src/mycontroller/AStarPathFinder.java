@@ -5,6 +5,10 @@ import world.World;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+
+import tiles.MapTile;
+import utilities.Coordinate;
 
 
 /**
@@ -21,7 +25,7 @@ public class AStarPathFinder implements PathFinder{
 	private SortedList open = new SortedList();
 	
 	/** The world being searched */
-	private World world;
+	private HashMap<Coordinate, MapTile> map;
 	/** The maximum depth of search we're willing to accept before giving up */
 	private int maxSearchDistance;
 	
@@ -40,8 +44,8 @@ public class AStarPathFinder implements PathFinder{
 	 * @param maxSearchDistance The maximum depth we'll search before giving up
 	 * @param allowDiagMovement True if the search should try diaganol movement
 	 */
-	public AStarPathFinder(int maxSearchDistance, boolean allowDiagMovement) {
-		this(maxSearchDistance, allowDiagMovement, new ClosestHeuristic());
+	public AStarPathFinder( HashMap<Coordinate, MapTile> map, int maxSearchDistance, boolean allowDiagMovement) {
+		this(map, maxSearchDistance, allowDiagMovement, new ClosestHeuristic());
 	}
 
 	/**
@@ -52,7 +56,7 @@ public class AStarPathFinder implements PathFinder{
 	 * @param maxSearchDistance The maximum depth we'll search before giving up
 	 * @param allowDiagMovement True if the search should try diagonal movement
 	 */
-	public AStarPathFinder(int maxSearchDistance, 
+	public AStarPathFinder( HashMap<Coordinate, MapTile> map, int maxSearchDistance, 
 						   boolean allowDiagMovement, ClosestHeuristic heuristic) {
 		this.heuristic = heuristic;
 //		this.world = world;
@@ -70,7 +74,7 @@ public class AStarPathFinder implements PathFinder{
 	/**
 	 * @see PathFinder#findPath(Car, int, int, int, int)
 	 */
-	public Path findPath(int sx, int sy, int tx, int ty) {
+	public Path findPath(HashMap<Coordinate, MapTile> map, int sx, int sy, int tx, int ty) {
 		// easy first check, if the destination is isBlocked, we can't get there
 
 //		if (world.isBlocked(tx, ty)) {
@@ -130,7 +134,7 @@ public class AStarPathFinder implements PathFinder{
 					int xp = x + current.x;
 					int yp = y + current.y;
 					
-					if (isValidLocation(/*car,*/sx,sy,xp,yp)) {
+					if (isValidLocation(map, sx,sy,xp,yp)) {
 						// the cost to get to this node is cost the current plus the movement
 
 						// cost to reach this node. Note that the heursitic value is only used
@@ -275,11 +279,11 @@ public class AStarPathFinder implements PathFinder{
 	 * @param y The y coordinate of the location to check
 	 * @return True if the location is valid for the given car
 	 */
-	protected boolean isValidLocation(int sx, int sy, int x, int y) {
+	protected boolean isValidLocation(HashMap<Coordinate, MapTile> map, int sx, int sy, int x, int y) {
 		boolean invalid = (x < 0) || (y < 0) || (x >= World.MAP_WIDTH) || (y >= World.MAP_HEIGHT);
 		
 		if ((!invalid) && ((sx != x) || (sy != y))) {
-//			invalid = world.isBlocked(x, y);
+			invalid = IsBlocked(map, x, y);
 		}
 		
 		return !invalid;
@@ -312,7 +316,7 @@ public class AStarPathFinder implements PathFinder{
 	 * @return The heuristic cost assigned to the tile
 	 */
 	public float getHeuristicCost(int x, int y, int tx, int ty) {
-		return heuristic.getCost(world, x, y, tx, ty);
+		return heuristic.getCost(map, x, y, tx, ty);
 	}
 	
 	/**
@@ -437,5 +441,30 @@ public class AStarPathFinder implements PathFinder{
 				return 0;
 			}
 		}
+	}
+	
+	public boolean IsBlocked(HashMap<Coordinate, MapTile> maze, int x, int y) {
+		
+		Coordinate coord = new Coordinate(x, y);
+//		Coordinate tcoord = new Coordinate(1, 3);
+//		System.out.println(coord);
+		
+//		System.out.println(maze.size());
+		MapTile mt = null;
+		
+		if(maze.containsKey(coord)) {
+//			System.out.println("maze contains key");
+			mt = maze.get(coord);
+//			System.out.println("map tile found");
+		}
+		else {
+			return false;
+		}
+		if(mt.getType().toString().equals("WALL") || mt.getType().toString().equals("EMPTY")) {
+			return true;
+		}
+		
+		return false;
+		
 	}
 }
