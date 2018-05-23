@@ -29,7 +29,8 @@ public class AStarPathFinder {
 	/** True if we allow diagonal movement */
 	private boolean allowDiagMovement;
 	/** The heuristic we're applying to determine which nodes to search first */
-	private AStarHeuristic heuristic;
+	private ClosestHeuristic heuristic;
+//	private AStarHeuristic heuristic;
 	
 	/**
 	 * Create a path finder with the default heuristic - closest to target.
@@ -51,7 +52,7 @@ public class AStarPathFinder {
 	 * @param allowDiagMovement True if the search should try diagonal movement
 	 */
 	public AStarPathFinder(World world, int maxSearchDistance, 
-						   boolean allowDiagMovement, AStarHeuristic heuristic) {
+						   boolean allowDiagMovement, ClosestHeuristic heuristic) {
 		this.heuristic = heuristic;
 		this.world = world;
 		this.maxSearchDistance = maxSearchDistance;

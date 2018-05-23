@@ -2,7 +2,6 @@ package mycontroller;
 
 import java.util.ArrayList;
 
-import mycontroller.Path.Step;
 
 /**
  * A path determined by some path finding algorithm. A series of steps from
