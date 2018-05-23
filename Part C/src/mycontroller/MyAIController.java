@@ -42,7 +42,8 @@ public class MyAIController extends CarController{
 			
 			checkStateChange();
 			Coordinate currentPosition = new Coordinate(getPosition());
-			turnLeft(delta);
+			
+			
 			if(currentPosition.x<destinationX) {
 				if(getSpeed() < CAR_SPEED){
 					//applyLeftTurn(getOrientation(),delta);
