@@ -19,8 +19,8 @@ public class ManualController extends CarController{
 	ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 	ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
 	ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
-	ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
-	ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
+	ArrayList<TestTileCollector> tileCollectorArrayList = new ArrayList<TestTileCollector>();
+	ArrayList<TestTileCollector> keyCollectorArrayList = new ArrayList<TestTileCollector>();
 	int totalKey = getKey();
 	int mapHeight = World.MAP_HEIGHT;
 	int mapWidth = World.MAP_WIDTH;
@@ -137,6 +137,16 @@ public class ManualController extends CarController{
 		MapTile currentTile = currentView.get(currentPosition);	
 		TrapTile a = (TrapTile) currentTile;
 		LavaTrap b = (LavaTrap) a;
+		
+//		int i = 0;
+//		
+//		while(i < tileCollectorArrayList.size()) {
+//			System.out.println(tileCollectorArrayList.get(i).location + "\n");
+//			System.out.println(tileCollectorArrayList.get(i).tileType);
+//			
+//			i++;
+//		}
+//		
 		return b.getKey();
 		
 	}
@@ -187,7 +197,7 @@ public class ManualController extends CarController{
 									keyTile.add(scanCoo);
 								//	System.out.println("KEY TILE"+keyTile);
 									int keyNum = getKeyNum(currentView, scanCoo);
-									TileCollector keyTC = new TileCollector(scanCoo,keyNum);
+									TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
 									keyCollectorArrayList.add(keyTC);
 									System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 									
@@ -206,7 +216,7 @@ public class ManualController extends CarController{
 						}
 		// Record every Tile				
 						MapTile.Type scanType = scanTile.getType();
-						TileCollector tctile = new TileCollector(scanCoo,scanType);
+						TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
 						
 						tileCollectorArrayList.add(tctile);
 						
@@ -226,7 +236,7 @@ public class ManualController extends CarController{
 						keyTile.add(scanCoo);
 						//	System.out.println("KEY TILE"+keyTile);
 							int keyNum = getKeyNum(currentView, scanCoo);
-							TileCollector keyTC = new TileCollector(scanCoo,keyNum);
+							TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
 							keyCollectorArrayList.add(keyTC);
 							System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 						}
@@ -243,7 +253,7 @@ public class ManualController extends CarController{
 				}
 				
 				MapTile.Type scanType = scanTile.getType();
-				TileCollector tctile = new TileCollector(scanCoo,scanType);
+				TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
 				
 				tileCollectorArrayList.add(tctile);
 				
@@ -265,7 +275,7 @@ public class ManualController extends CarController{
 								keyTile.add(scanCoo);
 								//	System.out.println("KEY TILE"+keyTile);
 									int keyNum = getKeyNum(currentView, scanCoo);
-									TileCollector keyTC = new TileCollector(scanCoo,keyNum);
+									TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
 									keyCollectorArrayList.add(keyTC);
 									System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 								}
@@ -283,7 +293,7 @@ public class ManualController extends CarController{
 						}
 						
 						MapTile.Type scanType = scanTile.getType();
-						TileCollector tctile = new TileCollector(scanCoo,scanType);
+						TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
 						//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
 						tileCollectorArrayList.add(tctile);
 						
@@ -305,7 +315,7 @@ public class ManualController extends CarController{
 						keyTile.add(scanCoo);
 						//	System.out.println("KEY TILE"+keyTile);
 							int keyNum = getKeyNum(currentView, scanCoo);
-							TileCollector keyTC = new TileCollector(scanCoo,keyNum);
+							TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
 							keyCollectorArrayList.add(keyTC);
 							System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 						}
@@ -322,7 +332,7 @@ public class ManualController extends CarController{
 					
 				}
 				MapTile.Type scanType = scanTile.getType();
-				TileCollector tctile = new TileCollector(scanCoo,scanType);			
+				TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);			
 				tileCollectorArrayList.add(tctile);
 						
 						

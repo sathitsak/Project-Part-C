@@ -1,7 +1,10 @@
 package mycontroller;
 
 import controller.CarController;
+import controller.TestTileCollector;
 import world.Car;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import tiles.MapTile;
@@ -19,6 +22,8 @@ public class MyAIController extends CarController{
 		private boolean isTurningRight = false; 
 		private WorldSpatial.Direction previousState = null; // Keeps track of the previous state
 		
+		private PathFinder finder;
+		
 		// Car Speed to move at
 		private final float CAR_SPEED = 3;
 		
@@ -27,6 +32,11 @@ public class MyAIController extends CarController{
 		
 		public MyAIController(Car car) {
 			super(car);
+			finder = new AStarPathFinder(500, false);
+			ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
+			ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
+			ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
+			ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
 		}
 		
 		Coordinate initialGuess;
@@ -37,69 +47,88 @@ public class MyAIController extends CarController{
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
 			
-			checkStateChange();
-
-			// If you are not following a wall initially, find a wall to stick to!
-			if(!isFollowingWall){
-				if(getSpeed() < CAR_SPEED){
-					applyForwardAcceleration();
-				}
-				// Turn towards the north
-				if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
-					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-					applyLeftTurn(getOrientation(),delta);
-				}
-				if(checkNorth(currentView)){
-					// Turn right until we go back to east!
-					if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
-						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						applyRightTurn(getOrientation(),delta);
-					}
-					else{
-						isFollowingWall = true;
-					}
-				}
-			}
-			// Once the car is already stuck to a wall, apply the following logic
-			else{
-				
-				// Readjust the car if it is misaligned.
-				readjust(lastTurnDirection,delta);
-				
-				if(isTurningRight){
-					applyRightTurn(getOrientation(),delta);
-				}
-				else if(isTurningLeft){
-					// Apply the left turn if you are not currently near a wall.
-					if(!checkFollowingWall(getOrientation(),currentView)){
-						applyLeftTurn(getOrientation(),delta);
-					}
-					else{
-						isTurningLeft = false;
-					}
-				}
-				// Try to determine whether or not the car is next to a wall.
-				else if(checkFollowingWall(getOrientation(),currentView)){
-					// Maintain some velocity
-					if(getSpeed() < CAR_SPEED){
-						applyForwardAcceleration();
-					}
-					// If there is wall ahead, turn right!
-					if(checkWallAhead(getOrientation(),currentView)){
-						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-						isTurningRight = true;				
-						
-					}
-
-				}
-				// This indicates that I can do a left turn if I am not turning right
-				else{
-					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-					isTurningLeft = true;
-				}
-			}
 			
 			
+			
+			
+			
+			
+//			Path testPath = finder.findPath(2, 3, 21, 12);
+			
+
+			
+//			int i = 0;
+//			
+//			while(i < testPath.getLength()) {
+//				System.out.println(testPath.getX(i) + "," + testPath.getY(i));
+//				i++;
+//			}
+
+			
+			
+//			checkStateChange();
+//
+//			// If you are not following a wall initially, find a wall to stick to!
+//			if(!isFollowingWall){
+//				if(getSpeed() < CAR_SPEED){
+//					applyForwardAcceleration();
+//				}
+//				// Turn towards the north
+//				if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
+//					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+//					applyLeftTurn(getOrientation(),delta);
+//				}
+//				if(checkNorth(currentView)){
+//					// Turn right until we go back to east!
+//					if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+//						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+//						applyRightTurn(getOrientation(),delta);
+//					}
+//					else{
+//						isFollowingWall = true;
+//					}
+//				}
+//			}
+//			// Once the car is already stuck to a wall, apply the following logic
+//			else{
+//				
+//				// Readjust the car if it is misaligned.
+//				readjust(lastTurnDirection,delta);
+//				
+//				if(isTurningRight){
+//					applyRightTurn(getOrientation(),delta);
+//				}
+//				else if(isTurningLeft){
+//					// Apply the left turn if you are not currently near a wall.
+//					if(!checkFollowingWall(getOrientation(),currentView)){
+//						applyLeftTurn(getOrientation(),delta);
+//					}
+//					else{
+//						isTurningLeft = false;
+//					}
+//				}
+//				// Try to determine whether or not the car is next to a wall.
+//				else if(checkFollowingWall(getOrientation(),currentView)){
+//					// Maintain some velocity
+//					if(getSpeed() < CAR_SPEED){
+//						applyForwardAcceleration();
+//					}
+//					// If there is wall ahead, turn right!
+//					if(checkWallAhead(getOrientation(),currentView)){
+//						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+//						isTurningRight = true;				
+//						
+//					}
+//
+//				}
+//				// This indicates that I can do a left turn if I am not turning right
+//				else{
+//					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+//					isTurningLeft = true;
+//				}
+//			}
+//			
+//			
 
 		}
 		
