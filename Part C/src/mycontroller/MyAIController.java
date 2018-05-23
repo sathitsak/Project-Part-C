@@ -6,8 +6,12 @@ import world.Car;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
+import tiles.LavaTrap;
 import tiles.MapTile;
+import tiles.TrapTile;
 import utilities.Coordinate;
 import world.Car;
 import world.WorldSpatial;
@@ -15,6 +19,17 @@ public class MyAIController extends CarController{
 	// How many minimum units the wall is away from the player.
 		private int wallSensitivity = 2;
 		
+		
+		HashMap<Coordinate, MapTile> maze = new HashMap<Coordinate, MapTile>();
+		
+		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
+		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
+		ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
+		ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
+		int totalKey = getKey();
+//		int totalTile = 
+		float currentHealth = getHealth();
 		
 		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
@@ -33,14 +48,12 @@ public class MyAIController extends CarController{
 		public MyAIController(Car car) {
 			super(car);
 			finder = new AStarPathFinder(500, false);
-			ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
-			ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
-			ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
-			ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
+
 		}
 		
 		Coordinate initialGuess;
 		boolean notSouth = true;
+		
 		@Override
 		public void update(float delta) {
 			
@@ -48,8 +61,19 @@ public class MyAIController extends CarController{
 			HashMap<Coordinate, MapTile> currentView = getView();
 			
 			
+			Iterator it = currentView.entrySet().iterator();
 			
+			while(it.hasNext()) {
+				Map.Entry tile = (Map.Entry)it.next();
+				if(!maze.containsKey(tile.getKey())) {
+					maze.put((Coordinate)tile.getKey(), (MapTile)tile.getValue());
+				}
+				it.remove();
+			}
 			
+			printMaze();
+			
+			System.out.println("Internal map");
 			
 			
 			
@@ -399,5 +423,109 @@ public class MyAIController extends CarController{
 			return false;
 		}
 		
+		public boolean searchForDuplicateCoordinate(ArrayList<Coordinate> arrayList, Coordinate coordinate) {
+			for(int i=0; i<arrayList.size();i++) {
+				Coordinate coo = arrayList.get(i);
+				;
+				if(coordinate.equals(coo)) {
+				
+					return true;
+				}
+			}
+			
+			//System.out.println("not dup");
+			return false;
+		}
+		
+		public boolean haveAllKeyLocation() {
+			if (keyCollectorArrayList.size() == totalKey-1 )
+			{	
+				return true;
+			}
+				return false;		
+		}
+		
+		public boolean haveOneHealTile() {
+			if (healTile.size()>0) {
+				return true;
+			}
+			return false;
+		}
+		
+		public boolean sameTile(ArrayList<Coordinate> collection,Coordinate current) {
+			for(int i=0;i<collection.size();i++) {
+			if(collection.get(i) == current) {
+				System.out.println("SAME TILE");
+				return true;
+			}
+				
+			}
+			
+			return false;
+			
+		}
+		
+		public void addtilePosition(Coordinate currentPosition, ArrayList<Coordinate> collection) {
+			collection.add(currentPosition);
+		}
+		
+		public boolean landOnLavaTileWithKey(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			
+			MapTile currentTile = currentView.get(currentPosition);
+			MapTile.Type currentType = currentTile.getType();
+			if(MapTile.Type.TRAP == currentType){
+				
+				if(((TrapTile) currentTile).getTrap()=="lava"){
+					
+					TrapTile a = (TrapTile) currentTile;
+					LavaTrap b = (LavaTrap) a;
+					
+					if(b.getKey() > 0) {
+						//System.out.println("GET KEY "+b.getKey());
+					return true;}
+				}
+			}return false;
+		}
+		
+		public int getKeyNum(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			MapTile currentTile = currentView.get(currentPosition);	
+			TrapTile a = (TrapTile) currentTile;
+			LavaTrap b = (LavaTrap) a;
+				
+			return b.getKey();
+			
+		}
+		public boolean landOnHealTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			
+			MapTile currentTile = currentView.get(currentPosition);
+			MapTile.Type currentType = currentTile.getType();
+			if(MapTile.Type.TRAP == currentType){
+				
+				if(((TrapTile) currentTile).getTrap()=="health"){
+					
+					return true;
+				}
+			}return false;
+		}
+		
+		
+		public void printMaze() {
+			Iterator it = this.maze.entrySet().iterator();
+			
+			while(it.hasNext()) {
+				Map.Entry tile = (Map.Entry)it.next();
+				MapTile mt = (MapTile) tile.getValue();
+				System.out.print("Coords: " + (Coordinate)tile.getKey() +" , TileType: " + mt.getType() + " ");
+				if(mt.getType().toString().equals("TRAP")) {
+					TrapTile tt = (TrapTile) mt;
+					tt.getTrap();
+					System.out.print("Trap type: " + tt.getTrap());
+				}
+				System.out.print("\n");
+				
+				it.remove();
+			}
+			
+		}
 
 }
