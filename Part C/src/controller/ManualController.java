@@ -16,11 +16,15 @@ import world.World;
 // Manual Controls for the car
 public class ManualController extends CarController{
 	
-	ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>();
+	ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 	ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
+	ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
 	ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
 	ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
-	
+	int totalKey = getKey();
+	int mapHeight = World.MAP_HEIGHT;
+	int mapWidth = World.MAP_WIDTH;
+	int totalTile = mapHeight*mapWidth;
 	public ManualController(Car car){
 		super(car);
 	}
@@ -32,9 +36,32 @@ public class ManualController extends CarController{
 		
 		HashMap<Coordinate, MapTile> currentView = getView();
 		Coordinate currentPosition = new Coordinate(getPosition());
-		MapTile currentTile = currentView.get(currentPosition);
-		
+		System.out.print("Total Tile in MAP"+totalTile);
+		System.out.print("MAP H "+mapHeight);
+		System.out.print("MAP W"+mapWidth);
+	//	MapTile currentTile = currentView.get(currentPosition);
+		if(searchForDuplicateCoordinate(visitedTile, currentPosition) == false) {
+			visitedTile.add(currentPosition);
+			
+			System.out.print("visitedTile"+visitedTile);
+			
+		}
 		recordTileTypeAroundTheCar(currentView,currentPosition);
+		System.out.print("GET KEY TEST"+totalKey);
+		
+		if(haveAllKeyLocation() == true) {
+			System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
+			
+		}
+		if(haveOneHealTile() == true) {
+			//System.out.println("YOU GOT ONE HEAL LOCATION!!!!!!!");			
+			
+		}
+		if(coverAllTiled() == true) {
+			System.out.println("YOU GOT ALL LOCATION!!!!!!!");			
+			
+		}
+		
 		
         if (Gdx.input.isKeyPressed(Input.Keys.B)) {
             applyBrake();
@@ -51,6 +78,28 @@ public class ManualController extends CarController{
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
         	turnRight(delta);
         }
+	}
+	//Check if we
+	public boolean haveAllKeyLocation() {
+		if (keyCollectorArrayList.size() == totalKey-1 )
+		{	
+			return true;
+		}
+			return false;		
+	}
+	
+	public boolean haveOneHealTile() {
+		if (healTile.size()>0) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean coverAllTiled() {
+		if(tileCollectorArrayList.size() == totalTile)
+		return true;
+		return false;
+		
 	}
 	
 	public void addtilePosition(Coordinate currentPosition, ArrayList<Coordinate> collection) {
