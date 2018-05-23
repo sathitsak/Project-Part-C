@@ -21,6 +21,7 @@ public class MyAIController extends CarController{
 		
 		
 		HashMap<Coordinate, MapTile> maze = new HashMap<Coordinate, MapTile>();
+		HashMap<Coordinate, Integer> KeyMap = new HashMap<Coordinate, Integer>();
 		
 		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
@@ -60,20 +61,27 @@ public class MyAIController extends CarController{
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
 			
-			
+			//Read current view into internal map
 			Iterator it = currentView.entrySet().iterator();
-			
 			while(it.hasNext()) {
 				Map.Entry tile = (Map.Entry)it.next();
 				if(!maze.containsKey(tile.getKey())) {
-					maze.put((Coordinate)tile.getKey(), (MapTile)tile.getValue());
+					MapTile mt = (MapTile)tile.getValue();
+					Coordinate Coord = (Coordinate)tile.getKey();
+					maze.put(Coord, mt);
+					
+					//Add key to key hashmap if it exists
+					if(ContainsKey(mt) != 0) {
+						KeyMap.put(Coord, ContainsKey(mt));
+					}
+					
 				}
 				it.remove();
 			}
 			
 			printMaze();
 			
-			System.out.println("Internal map");
+//			System.out.println("Internal map");
 			
 			
 			
@@ -519,7 +527,13 @@ public class MyAIController extends CarController{
 				if(mt.getType().toString().equals("TRAP")) {
 					TrapTile tt = (TrapTile) mt;
 					tt.getTrap();
-					System.out.print("Trap type: " + tt.getTrap());
+					System.out.print("Trap type: " + tt.getTrap() + " ");
+					if(tt.getTrap().equals("LAVA")) {
+						LavaTrap lt = (LavaTrap) tt;
+						if(lt.getKey() != 0) {
+							System.out.print("Contains Key: " + lt.getKey());
+						}
+					}
 				}
 				System.out.print("\n");
 				
@@ -527,5 +541,21 @@ public class MyAIController extends CarController{
 			}
 			
 		}
+		
+		
+		//Check if MapTile contains key
+		public int ContainsKey(MapTile mt) {
+			if(mt.getType().toString().equals("TRAP")) {
+				TrapTile tt = (TrapTile) mt;
+				if(tt.getTrap().equals("LAVA")) {
+					LavaTrap lt = (LavaTrap) tt;
+					if(lt.getKey() != 0) {
+						return getKey();
+					}
+				}
+			}
+			return 0;
+		}
+		
 
 }
