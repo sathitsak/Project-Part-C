@@ -1,5 +1,9 @@
 package mycontroller;
 
+import java.util.HashMap;
+
+import tiles.MapTile;
+import utilities.Coordinate;
 import world.Car;
 import world.World;
 
@@ -27,5 +31,5 @@ public interface AStarHeuristic {
 	 * @param ty Teh y coordinate of the target location
 	 * @return The cost associated with the given tile
 	 */
-	public float getCost(World world, int x, int y, int tx, int ty);
+	public float getCost(HashMap<Coordinate, MapTile> map, int x, int y, int tx, int ty);
 }

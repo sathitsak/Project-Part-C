@@ -1,6 +1,11 @@
 package mycontroller;
 
 import world.World;
+
+import java.util.HashMap;
+
+import tiles.MapTile;
+import utilities.Coordinate;
 import world.Car;
 
 /**
@@ -15,7 +20,7 @@ public class ClosestHeuristic implements AStarHeuristic {
 	/**
 	 * @see AStarHeuristic#getCost(TileBasedMap, Mover, int, int, int, int)
 	 */
-	public float getCost(World world, int x, int y, int tx, int ty) {		
+	public float getCost(HashMap<Coordinate, MapTile> map, int x, int y, int tx, int ty) {		
 		float dx = tx - x;
 		float dy = ty - y;
 		

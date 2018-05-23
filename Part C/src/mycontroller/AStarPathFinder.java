@@ -5,6 +5,10 @@ import world.World;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+
+import tiles.MapTile;
+import utilities.Coordinate;
 
 
 /**
@@ -21,7 +25,7 @@ public class AStarPathFinder implements PathFinder{
 	private SortedList open = new SortedList();
 	
 	/** The world being searched */
-	private World world;
+	private HashMap<Coordinate, MapTile> map;
 	/** The maximum depth of search we're willing to accept before giving up */
 	private int maxSearchDistance;
 	
@@ -40,8 +44,8 @@ public class AStarPathFinder implements PathFinder{
 	 * @param maxSearchDistance The maximum depth we'll search before giving up
 	 * @param allowDiagMovement True if the search should try diaganol movement
 	 */
-	public AStarPathFinder(int maxSearchDistance, boolean allowDiagMovement) {
-		this(maxSearchDistance, allowDiagMovement, new ClosestHeuristic());
+	public AStarPathFinder( HashMap<Coordinate, MapTile> map, int maxSearchDistance, boolean allowDiagMovement) {
+		this(map, maxSearchDistance, allowDiagMovement, new ClosestHeuristic());
 	}
 
 	/**
@@ -52,7 +56,7 @@ public class AStarPathFinder implements PathFinder{
 	 * @param maxSearchDistance The maximum depth we'll search before giving up
 	 * @param allowDiagMovement True if the search should try diagonal movement
 	 */
-	public AStarPathFinder(int maxSearchDistance, 
+	public AStarPathFinder( HashMap<Coordinate, MapTile> map, int maxSearchDistance, 
 						   boolean allowDiagMovement, ClosestHeuristic heuristic) {
 		this.heuristic = heuristic;
 //		this.world = world;
@@ -279,7 +283,7 @@ public class AStarPathFinder implements PathFinder{
 		boolean invalid = (x < 0) || (y < 0) || (x >= World.MAP_WIDTH) || (y >= World.MAP_HEIGHT);
 		
 		if ((!invalid) && ((sx != x) || (sy != y))) {
-//			invalid = world.isBlocked(x, y);
+			invalid = IsBlocked(map, x, y);
 		}
 		
 		return !invalid;
@@ -312,7 +316,7 @@ public class AStarPathFinder implements PathFinder{
 	 * @return The heuristic cost assigned to the tile
 	 */
 	public float getHeuristicCost(int x, int y, int tx, int ty) {
-		return heuristic.getCost(world, x, y, tx, ty);
+		return heuristic.getCost(map, x, y, tx, ty);
 	}
 	
 	/**
@@ -437,5 +441,23 @@ public class AStarPathFinder implements PathFinder{
 				return 0;
 			}
 		}
+	}
+	
+	public boolean IsBlocked(HashMap<Coordinate, MapTile> maze, int x, int y) {
+		
+		Coordinate coord = new Coordinate(x, y);
+		MapTile mt = null;
+		if(maze.containsKey(coord)) {
+			mt = maze.get(coord);
+		}
+		else {
+			return false;
+		}
+		if(mt.getType().toString().equals("WALL") || mt.getType().toString().equals("EMPTY")) {
+			return true;
+		}
+		
+		return false;
+		
 	}
 }

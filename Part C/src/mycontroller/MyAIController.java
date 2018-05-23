@@ -49,7 +49,7 @@ public class MyAIController extends CarController{
 		
 		public MyAIController(Car car) {
 			super(car);
-			finder = new AStarPathFinder(500, false);
+			
 
 		}
 		
@@ -58,6 +58,7 @@ public class MyAIController extends CarController{
 		
 		@Override
 		public void update(float delta) {
+			finder = new AStarPathFinder(maze, 500, false);
 			
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
@@ -573,5 +574,25 @@ public class MyAIController extends CarController{
 			return false;
 		}
 		
+		public HashMap<Coordinate, MapTile> getMap() {
+			return maze;
+		}
+		
+		//Check if solid tile
+		public boolean IsBlocked(int x, int y) {
+			Coordinate coord = new Coordinate(x, y);
+			MapTile mt = null;
+			if(maze.containsKey(coord)) {
+				mt = maze.get(coord);
+			}
+			else {
+				return false;
+			}
+			if(mt.getType().toString().equals("WALL") || mt.getType().toString().equals("EMPTY")) {
+				return true;
+			}
+			
+			return false;
+		}
 
 }
