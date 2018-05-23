@@ -46,6 +46,11 @@ public class ManualController extends CarController{
 			System.out.print("visitedTile"+visitedTile);
 			
 		}
+		if(sameTile(visitedTile,currentPosition) ==true) {
+			System.out.println("THIS IS SAME TILE!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+			
+		}
 		recordTileTypeAroundTheCar(currentView,currentPosition);
 		System.out.print("GET KEY TEST"+totalKey);
 		
@@ -57,10 +62,7 @@ public class ManualController extends CarController{
 			//System.out.println("YOU GOT ONE HEAL LOCATION!!!!!!!");			
 			
 		}
-		if(coverAllTiled() == true) {
-			System.out.println("YOU GOT ALL LOCATION!!!!!!!");			
-			
-		}
+		
 		
 		
         if (Gdx.input.isKeyPressed(Input.Keys.B)) {
@@ -95,9 +97,15 @@ public class ManualController extends CarController{
 		return false;
 	}
 	
-	public boolean coverAllTiled() {
-		if(tileCollectorArrayList.size() == totalTile)
-		return true;
+	public boolean sameTile(ArrayList<Coordinate> collection,Coordinate current) {
+		for(int i=0;i<collection.size();i++) {
+		if(collection.get(i) == current) {
+			System.out.println("SAME TILE");
+			return true;
+		}
+			
+		}
+		
 		return false;
 		
 	}
