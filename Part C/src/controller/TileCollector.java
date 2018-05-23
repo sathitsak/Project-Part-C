@@ -1,27 +1,30 @@
 package controller;
 
+import utilities.Coordinate;
+import tiles.MapTile.Type;
+
 public class TileCollector {
 
-	public utilities.Coordinate location;
-	public tiles.MapTile.Type tileType;
+	public Coordinate location;
+	public Type tileType;
 	public int keyNumber;
 	
-	public TileCollector(utilities.Coordinate Coordinate,tiles.MapTile.Type type) {
+	public TileCollector(Coordinate Coordinate, Type type) {
 		tileType = type;
 		location = Coordinate;
 		
 	}
 	
-	public TileCollector(utilities.Coordinate Coordinate,int keyNum) {
+	public TileCollector(Coordinate Coordinate,int keyNum) {
 		keyNumber = keyNum;
 		location = Coordinate;
 		
 	}
-	public  utilities.Coordinate getCoordinate(){
+	public Coordinate getCoordinate(){
 		return location;
 		
 	}
-	public tiles.MapTile.Type getType(){
+	public Type getType(){
 		return tileType;
 	}
 	public int getKeyNum(){
