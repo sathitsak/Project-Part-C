@@ -43,13 +43,14 @@ public class MyAIController extends CarController{
 		private PathFinder finder;
 		
 		// Car Speed to move at
-		private final float CAR_SPEED = 1;
+		private final double CAR_SPEED = 1.5;
 		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
 		private int EAST_THRESHOLD = 3;
 		private static final int SensorLimit = 4;
 		private static final int NoChange = 0;
+		private static int j = 1;
 		boolean FinishPath = true;
 		
 		public MyAIController(Car car) {
@@ -90,133 +91,118 @@ public class MyAIController extends CarController{
 			
 			printMaze();
 			
+			//If path is finished find a new one
 			if(FinishPath) {
-				finder = new AStarPathFinder(maze, 500, false);
-				testPath = finder.findPath(maze, 2, 3, 3, 5);
+
 				FinishPath = false;
 			}
 
 
-
+			finder = new AStarPathFinder(getMap(), 500, false);
+			testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, 2, 7);
 			
 			
-			
-			int i = 0, j = 1;
-			
+			//Print suggested path
+			int i = 0;
 			while(i < testPath.getLength()) {
 				System.out.println(testPath.getX(i) + "," + testPath.getY(i));
 				i++;
 			}
 			
 
-				while(	j < testPath.getLength()
-						&& testPath.getX(j) <= testPath.getX(0) + SensorLimit
-						&& testPath.getX(j) >= testPath.getX(0) - SensorLimit
-						&& testPath.getY(j) <= testPath.getY(0) + SensorLimit
-						&& testPath.getY(j) >= testPath.getY(0) - SensorLimit) 
-				{
-					
-					
-					
-					Coordinate nextStep = FollowStep(testPath, j, currentPosition);
-					System.out.println(FollowStep(testPath, j, currentPosition));
-					
-					//If Y changes
-					if(nextStep.y != NoChange) {
-						//If its northwards
-						if(nextStep.y > NoChange) {
-							//If not facing north, face north and drive
-							if(!getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+			//If within initially sensed range
+			if(	j < testPath.getLength())
+//					&& testPath.getX(j) <= testPath.getX(0) + SensorLimit
+//					&& testPath.getX(j) >= testPath.getX(0) - SensorLimit
+//					&& testPath.getY(j) <= testPath.getY(0) + SensorLimit
+//					&& testPath.getY(j) >= testPath.getY(0) - SensorLimit) 
+			{
+				
+				
+				
+				Coordinate nextStep = FollowStep(testPath, j, currentPosition);
+				System.out.println(FollowStep(testPath, j, currentPosition));
+				
+				//If Y changes
+				if(nextStep.y != NoChange) {
+					//If its northwards
+					if(nextStep.y > NoChange) {
+						//If not facing north, face north and drive
+						if(!getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+							if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
 								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 								applyLeftTurn(getOrientation(),delta);
 							}
-						}		
+							else {
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+								applyRightTurn(getOrientation(),delta);
+								}
+						}
 					}
-					//If X changes
-					else if(nextStep.x != NoChange) {
-						//If its eastwards
-						if(nextStep.x > NoChange) {
-							//If not facing East, face east and drive
-							if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+					else {
+						if(!getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
+							if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
 								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
 								applyRightTurn(getOrientation(),delta);
 							}
+							else {
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyLeftTurn(getOrientation(),delta);
+								}
 						}
 					}
-	
-					applyForwardAcceleration();
-					
-					
-					j++;
 				}
+				//If X changes
+				else if(nextStep.x != NoChange) {
+					//If its eastwards
+					if(nextStep.x > NoChange) {
+						//If not facing East, face east and drive
+						if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+							if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+								applyRightTurn(getOrientation(),delta);
+							}
+							else {
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyLeftTurn(getOrientation(),delta);
+								}
+						}
+					}
+					else {
+						if(!getOrientation().equals(WorldSpatial.Direction.WEST)){
+							if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyLeftTurn(getOrientation(),delta);
+							}
+							else {
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+								applyRightTurn(getOrientation(),delta);
+								}
+						}
+					}
+				}
+				
+				if(getSpeed() < CAR_SPEED) {
+					applyForwardAcceleration();
+				}
+
+				
+			}
 			
+			//Increment index and brake if at current tile
+			if(j < testPath.getLength() && currentPosition.x == testPath.getX(j) && currentPosition.y == testPath.getY(j)) {
+				applyBrake();
+				j++;
+			}
+			
+			//Reset counter and pathchecking boolean
+			if(j == testPath.getLength()) {
+				j = 0;
+				FinishPath = false;
+			}
+						
 			System.out.println("KICKED");
 			
-			
-			
-//			checkStateChange();
-//
-//			// If you are not following a wall initially, find a wall to stick to!
-//			if(!isFollowingWall){
-//				if(getSpeed() < CAR_SPEED){
-//					applyForwardAcceleration();
-//				}
-//				// Turn towards the north
-//				if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
-//					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-//					applyLeftTurn(getOrientation(),delta);
-//				}
-//				if(checkNorth(currentView)){
-//					// Turn right until we go back to east!
-//					if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
-//						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-//						applyRightTurn(getOrientation(),delta);
-//					}
-//					else{
-//						isFollowingWall = true;
-//					}
-//				}
-//			}
-//			// Once the car is already stuck to a wall, apply the following logic
-//			else{
-//				
-//				// Readjust the car if it is misaligned.
-//				readjust(lastTurnDirection,delta);
-//				
-//				if(isTurningRight){
-//					applyRightTurn(getOrientation(),delta);
-//				}
-//				else if(isTurningLeft){
-//					// Apply the left turn if you are not currently near a wall.
-//					if(!checkFollowingWall(getOrientation(),currentView)){
-//						applyLeftTurn(getOrientation(),delta);
-//					}
-//					else{
-//						isTurningLeft = false;
-//					}
-//				}
-//				// Try to determine whether or not the car is next to a wall.
-//				else if(checkFollowingWall(getOrientation(),currentView)){
-//					// Maintain some velocity
-//					if(getSpeed() < CAR_SPEED){
-//						applyForwardAcceleration();
-//					}
-//					// If there is wall ahead, turn right!
-//					if(checkWallAhead(getOrientation(),currentView)){
-//						lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-//						isTurningRight = true;				
-//						
-//					}
-//
-//				}
-//				// This indicates that I can do a left turn if I am not turning right
-//				else{
-//					lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-//					isTurningLeft = true;
-//				}
-//			}
-//			
-//			
 
 		}
 		
@@ -654,5 +640,6 @@ public class MyAIController extends CarController{
 					path.getY(index) - currentPosition.y);
 			return nextMove;
 		}
+
 
 }
