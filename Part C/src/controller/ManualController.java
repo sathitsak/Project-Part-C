@@ -25,6 +25,7 @@ public class ManualController extends CarController{
 	int mapHeight = World.MAP_HEIGHT;
 	int mapWidth = World.MAP_WIDTH;
 	int totalTile = mapHeight*mapWidth;
+	float currentHealth = getHealth();
 	public ManualController(Car car){
 		super(car);
 	}
