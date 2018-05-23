@@ -39,18 +39,21 @@ public class MyAIController extends CarController{
 		private boolean isTurningRight = false; 
 		private WorldSpatial.Direction previousState = null; // Keeps track of the previous state
 		
+		Path testPath;
 		private PathFinder finder;
 		
 		// Car Speed to move at
-		private final float CAR_SPEED = 3;
+		private final float CAR_SPEED = 1;
+		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
 		private int EAST_THRESHOLD = 3;
+		private static final int SensorLimit = 4;
+		private static final int NoChange = 0;
+		boolean FinishPath = true;
 		
 		public MyAIController(Car car) {
 			super(car);
-			
-
 		}
 		
 		Coordinate initialGuess;
@@ -58,7 +61,7 @@ public class MyAIController extends CarController{
 		
 		@Override
 		public void update(float delta) {
-			
+			currentPosition = new Coordinate(getPosition());
 			
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
@@ -81,29 +84,74 @@ public class MyAIController extends CarController{
 					}
 					
 				}
-//				it.remove();
 			}
 			
-
+			
 			
 			printMaze();
 			
-			
-//			System.out.println("Imaze size: " + maze.size());
-			
-			
-			finder = new AStarPathFinder(maze, 500, false);
-			Path testPath = finder.findPath(maze, 2, 3, 6, 3);
-			
+			if(FinishPath) {
+				finder = new AStarPathFinder(maze, 500, false);
+				testPath = finder.findPath(maze, 2, 3, 3, 5);
+				FinishPath = false;
+			}
+
+
 
 			
-			int i = 0;
+			
+			
+			int i = 0, j = 1;
 			
 			while(i < testPath.getLength()) {
 				System.out.println(testPath.getX(i) + "," + testPath.getY(i));
 				i++;
 			}
+			
 
+				while(	j < testPath.getLength()
+						&& testPath.getX(j) <= testPath.getX(0) + SensorLimit
+						&& testPath.getX(j) >= testPath.getX(0) - SensorLimit
+						&& testPath.getY(j) <= testPath.getY(0) + SensorLimit
+						&& testPath.getY(j) >= testPath.getY(0) - SensorLimit) 
+				{
+					
+					
+					
+					Coordinate nextStep = FollowStep(testPath, j, currentPosition);
+					System.out.println(FollowStep(testPath, j, currentPosition));
+					
+					//If Y changes
+					if(nextStep.y != NoChange) {
+						//If its northwards
+						if(nextStep.y > NoChange) {
+							//If not facing north, face north and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyLeftTurn(getOrientation(),delta);
+							}
+						}		
+					}
+					//If X changes
+					else if(nextStep.x != NoChange) {
+						//If its eastwards
+						if(nextStep.x > NoChange) {
+							//If not facing East, face east and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+								applyRightTurn(getOrientation(),delta);
+							}
+						}
+					}
+	
+					applyForwardAcceleration();
+					
+					
+					j++;
+				}
+			
+			System.out.println("KICKED");
+			
 			
 			
 //			checkStateChange();
@@ -171,6 +219,8 @@ public class MyAIController extends CarController{
 //			
 
 		}
+		
+		
 		
 		/**
 		 * Readjust the car to the orientation we are in.
@@ -598,8 +648,11 @@ public class MyAIController extends CarController{
 			return false;
 		}
 		
-		public void FollowPath(Path path) {
-			
+//		returns coordinate to know movement distance
+		public Coordinate FollowStep(Path path, int index, Coordinate currentPosition) {
+			Coordinate nextMove = new Coordinate(path.getX(index) - currentPosition.x, 
+					path.getY(index) - currentPosition.y);
+			return nextMove;
 		}
 
 }

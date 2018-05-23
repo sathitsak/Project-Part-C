@@ -283,7 +283,6 @@ public class AStarPathFinder implements PathFinder{
 		boolean invalid = (x < 0) || (y < 0) || (x >= World.MAP_WIDTH) || (y >= World.MAP_HEIGHT);
 		
 		if ((!invalid) && ((sx != x) || (sy != y))) {
-			System.out.println("ValidLoc: " + map.size());
 			invalid = IsBlocked(map, x, y);
 		}
 		
