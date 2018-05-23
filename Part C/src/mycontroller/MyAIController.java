@@ -3,6 +3,7 @@ package mycontroller;
 import controller.CarController;
 import controller.TestTileCollector;
 import world.Car;
+import world.World;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,8 +28,7 @@ public class MyAIController extends CarController{
 		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
 		ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
-		ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
-		ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
+		
 		int totalKey = getKey();
 //		int totalTile = 
 		float currentHealth = getHealth();
@@ -37,13 +37,14 @@ public class MyAIController extends CarController{
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 		private boolean isTurningLeft = false;
 		private boolean isTurningRight = false; 
+		private boolean NextKey = false;
 		private WorldSpatial.Direction previousState = null; // Keeps track of the previous state
 		
 		Path testPath;
-		private PathFinder finder;
+		PathFinder finder;
 		
 		// Car Speed to move at
-		private final double CAR_SPEED = 1.5;
+		private final double CAR_SPEED = 1.25;
 		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
@@ -74,12 +75,16 @@ public class MyAIController extends CarController{
 				if(!maze.containsKey(tile.getKey())) {
 					MapTile mt = (MapTile)tile.getValue();
 					Coordinate Coord = (Coordinate)tile.getKey();
-					maze.put(Coord, mt);
 					
+					
+					//Place location of traps etc in maze
+					maze.put(Coord, mt);
+
 					//Add key to key hashmap if it exists
 					if(ContainsKey(mt) != 0) {
 						KeyMap.put(Coord, ContainsKey(mt));
 					}
+					//Add heal to array list if found
 					if(ContainsHeal(mt)) {
 						HealMap.add(Coord);
 					}
@@ -89,120 +94,143 @@ public class MyAIController extends CarController{
 			
 			
 			
-			printMaze();
 			
 			//If path is finished find a new one
-			if(FinishPath) {
-
-				FinishPath = false;
-			}
-
-
-			finder = new AStarPathFinder(getMap(), 500, false);
-			testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, 2, 7);
-			
-			
-			//Print suggested path
-			int i = 0;
-			while(i < testPath.getLength()) {
-				System.out.println(testPath.getX(i) + "," + testPath.getY(i));
-				i++;
-			}
-			
-
-			//If within initially sensed range
-			if(	j < testPath.getLength())
-//					&& testPath.getX(j) <= testPath.getX(0) + SensorLimit
-//					&& testPath.getX(j) >= testPath.getX(0) - SensorLimit
-//					&& testPath.getY(j) <= testPath.getY(0) + SensorLimit
-//					&& testPath.getY(j) >= testPath.getY(0) - SensorLimit) 
-			{
-				
-				
-				
-				Coordinate nextStep = FollowStep(testPath, j, currentPosition);
-				System.out.println(FollowStep(testPath, j, currentPosition));
-				
-				//If Y changes
-				if(nextStep.y != NoChange) {
-					//If its northwards
-					if(nextStep.y > NoChange) {
-						//If not facing north, face north and drive
-						if(!getOrientation().equals(WorldSpatial.Direction.NORTH)) {
-							if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
-								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-								applyLeftTurn(getOrientation(),delta);
-							}
-							else {
-								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-								applyRightTurn(getOrientation(),delta);
-								}
+			System.out.println(FinishPath);
+//			if(FinishPath) {
+				//Path finding algorithm
+					finder = new AStarPathFinder(maze, 500, false);	
+					
+					//If you have found the next key, path to it over everything else
+					Iterator KeyIt = KeyMap.entrySet().iterator();
+					while(KeyIt.hasNext()) {
+						Map.Entry Key = (Map.Entry)KeyIt.next();											
+						if((int)Key.getValue() == totalKey - 1) {
+							Coordinate KeyCo = (Coordinate)Key.getKey();
+							testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, KeyCo.x, KeyCo.y);
+							NextKey = true;
 						}
 					}
-					else {
-						if(!getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
-							if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
-								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-								applyRightTurn(getOrientation(),delta);
-							}
-							else {
-								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-								applyLeftTurn(getOrientation(),delta);
+					
+					//Otherwise search as normal
+					if(NextKey == false) {
+						testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, NewTarget().x , 3);
+					}
+
+//					FinishPath = false;
+//				}
+
+
+			
+
+				//As long as the path exists
+			if(testPath != null) {
+												
+//				//Print suggested path
+//				int i = 0;
+//				while(i < testPath.getLength()) {
+//					System.out.println(testPath.getX(i) + "," + testPath.getY(i));
+//					i++;
+//				}
+				
+				//If within initially sensed range and not fully incremented through
+				if(	j < testPath.getLength())
+	//					&& testPath.getX(j) <= testPath.getX(0) + SensorLimit
+	//					&& testPath.getX(j) >= testPath.getX(0) - SensorLimit
+	//					&& testPath.getY(j) <= testPath.getY(0) + SensorLimit
+	//					&& testPath.getY(j) >= testPath.getY(0) - SensorLimit) 
+				{
+					
+					
+					//Create next step for car movement
+					Coordinate nextStep = FollowStep(testPath, j, currentPosition);
+					System.out.println(FollowStep(testPath, j, currentPosition));
+					
+					/////////////////////////////////Start driving to path//////////////////////////////////////////////////////////////////
+					
+					//If Y changes
+					if(nextStep.y != NoChange) {
+						//If its northwards
+						if(nextStep.y > NoChange) {
+							//If not facing north, face north and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+								if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
 								}
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
+									}
+							}
+						}
+						else {
+							//If not facing south, face south and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
+								if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
+								}
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
+									}
+							}
 						}
 					}
+					//If X changes
+					else if(nextStep.x != NoChange) {
+						//If its eastwards
+						if(nextStep.x > NoChange) {
+							//If not facing East, face east and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+								if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
+								}
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
+									}
+							}
+						}
+						else {
+							//If not facing west, face west and drive
+							if(!getOrientation().equals(WorldSpatial.Direction.WEST)){
+								if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
+								}
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
+									}
+							}
+						}
+					}
+					
+					if(getSpeed() < CAR_SPEED) {
+						applyForwardAcceleration();
+					}
+	
+					
 				}
-				//If X changes
-				else if(nextStep.x != NoChange) {
-					//If its eastwards
-					if(nextStep.x > NoChange) {
-						//If not facing East, face east and drive
-						if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
-							if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
-								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-								applyRightTurn(getOrientation(),delta);
-							}
-							else {
-								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-								applyLeftTurn(getOrientation(),delta);
-								}
-						}
-					}
-					else {
-						if(!getOrientation().equals(WorldSpatial.Direction.WEST)){
-							if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
-								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-								applyLeftTurn(getOrientation(),delta);
-							}
-							else {
-								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-								applyRightTurn(getOrientation(),delta);
-								}
-						}
-					}
+				
+				//Increment index and brake if at current tile
+				if(j < testPath.getLength() && currentPosition.x == testPath.getX(j) && currentPosition.y == testPath.getY(j)) {
+					applyBrake();
+					j++;
 				}
 				
-				if(getSpeed() < CAR_SPEED) {
-					applyForwardAcceleration();
+				//Reset counter and pathchecking boolean
+				if(j == testPath.getLength()) {
+					j = 0;
+					NextKey = false;
+					FinishPath = true;
 				}
-
-				
+							
+				System.out.println("KICKED");
 			}
-			
-			//Increment index and brake if at current tile
-			if(j < testPath.getLength() && currentPosition.x == testPath.getX(j) && currentPosition.y == testPath.getY(j)) {
-				applyBrake();
-				j++;
-			}
-			
-			//Reset counter and pathchecking boolean
-			if(j == testPath.getLength()) {
-				j = 0;
-				FinishPath = false;
-			}
-						
-			System.out.println("KICKED");
-			
 
 		}
 		
@@ -489,14 +517,6 @@ public class MyAIController extends CarController{
 			return false;
 		}
 		
-		public boolean haveAllKeyLocation() {
-			if (keyCollectorArrayList.size() == totalKey-1 )
-			{	
-				return true;
-			}
-				return false;		
-		}
-		
 		public boolean haveOneHealTile() {
 			if (healTile.size()>0) {
 				return true;
@@ -560,7 +580,7 @@ public class MyAIController extends CarController{
 			}return false;
 		}
 		
-		
+		//Print list of tiles
 		public void printMaze() {
 			Iterator it = this.maze.entrySet().iterator();
 			
@@ -579,7 +599,7 @@ public class MyAIController extends CarController{
 						}
 					}
 				}
-				System.out.print("\n");
+				System.out.print(" LENGTH:" + maze.size() +"\n");
 				
 //				it.remove();
 			}
@@ -594,7 +614,7 @@ public class MyAIController extends CarController{
 				if(tt.getTrap().equals("lava")) {
 					LavaTrap lt = (LavaTrap) tt;
 					if(lt.getKey() != 0) {
-						return getKey();
+						return lt.getKey();
 					}
 				}
 			}
@@ -641,5 +661,25 @@ public class MyAIController extends CarController{
 			return nextMove;
 		}
 
+		
+		//Pick new coordinates for pathfinding
+		public Coordinate NewTarget() {
 
+			int newX = currentPosition.x;
+			int newY = currentPosition.y;
+			
+			Iterator it = this.maze.entrySet().iterator();
+			
+			while(it.hasNext()) {
+				Map.Entry tile = (Map.Entry)it.next();
+				Coordinate Coord = (Coordinate)tile.getKey();
+				if(newX < Coord.x && Coord.x < World.MAP_WIDTH) {
+					newX = Coord.x;
+				}
+			}
+			
+			Coordinate coord = new Coordinate(newX, newY);
+			return coord;
+		}
+		
 }
