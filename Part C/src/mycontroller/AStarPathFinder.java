@@ -74,7 +74,7 @@ public class AStarPathFinder implements PathFinder{
 	/**
 	 * @see PathFinder#findPath(Car, int, int, int, int)
 	 */
-	public Path findPath(int sx, int sy, int tx, int ty) {
+	public Path findPath(HashMap<Coordinate, MapTile> map, int sx, int sy, int tx, int ty) {
 		// easy first check, if the destination is isBlocked, we can't get there
 
 //		if (world.isBlocked(tx, ty)) {
@@ -134,7 +134,7 @@ public class AStarPathFinder implements PathFinder{
 					int xp = x + current.x;
 					int yp = y + current.y;
 					
-					if (isValidLocation(/*car,*/sx,sy,xp,yp)) {
+					if (isValidLocation(map, sx,sy,xp,yp)) {
 						// the cost to get to this node is cost the current plus the movement
 
 						// cost to reach this node. Note that the heursitic value is only used
@@ -279,10 +279,11 @@ public class AStarPathFinder implements PathFinder{
 	 * @param y The y coordinate of the location to check
 	 * @return True if the location is valid for the given car
 	 */
-	protected boolean isValidLocation(int sx, int sy, int x, int y) {
+	protected boolean isValidLocation(HashMap<Coordinate, MapTile> map, int sx, int sy, int x, int y) {
 		boolean invalid = (x < 0) || (y < 0) || (x >= World.MAP_WIDTH) || (y >= World.MAP_HEIGHT);
 		
 		if ((!invalid) && ((sx != x) || (sy != y))) {
+			System.out.println("ValidLoc: " + map.size());
 			invalid = IsBlocked(map, x, y);
 		}
 		
@@ -446,9 +447,16 @@ public class AStarPathFinder implements PathFinder{
 	public boolean IsBlocked(HashMap<Coordinate, MapTile> maze, int x, int y) {
 		
 		Coordinate coord = new Coordinate(x, y);
+//		Coordinate tcoord = new Coordinate(1, 3);
+//		System.out.println(coord);
+		
+//		System.out.println(maze.size());
 		MapTile mt = null;
+		
 		if(maze.containsKey(coord)) {
+//			System.out.println("maze contains key");
 			mt = maze.get(coord);
+//			System.out.println("map tile found");
 		}
 		else {
 			return false;

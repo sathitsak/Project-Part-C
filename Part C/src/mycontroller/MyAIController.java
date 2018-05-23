@@ -58,7 +58,7 @@ public class MyAIController extends CarController{
 		
 		@Override
 		public void update(float delta) {
-			finder = new AStarPathFinder(maze, 500, false);
+			
 			
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
@@ -81,25 +81,28 @@ public class MyAIController extends CarController{
 					}
 					
 				}
-				it.remove();
+//				it.remove();
 			}
-			
-			printMaze();
-			
-//			System.out.println("Internal map");
-			
-			
-			
-//			Path testPath = finder.findPath(2, 3, 21, 12);
 			
 
 			
-//			int i = 0;
-//			
-//			while(i < testPath.getLength()) {
-//				System.out.println(testPath.getX(i) + "," + testPath.getY(i));
-//				i++;
-//			}
+			printMaze();
+			
+			
+//			System.out.println("Imaze size: " + maze.size());
+			
+			
+			finder = new AStarPathFinder(maze, 500, false);
+			Path testPath = finder.findPath(maze, 2, 3, 6, 3);
+			
+
+			
+			int i = 0;
+			
+			while(i < testPath.getLength()) {
+				System.out.println(testPath.getX(i) + "," + testPath.getY(i));
+				i++;
+			}
 
 			
 			
@@ -533,7 +536,7 @@ public class MyAIController extends CarController{
 					TrapTile tt = (TrapTile) mt;
 					tt.getTrap();
 					System.out.print("Trap type: " + tt.getTrap() + " ");
-					if(tt.getTrap().equals("LAVA")) {
+					if(tt.getTrap().equals("lava")) {
 						LavaTrap lt = (LavaTrap) tt;
 						if(lt.getKey() != 0) {
 							System.out.print("Contains Key: " + lt.getKey());
@@ -542,7 +545,7 @@ public class MyAIController extends CarController{
 				}
 				System.out.print("\n");
 				
-				it.remove();
+//				it.remove();
 			}
 			
 		}
@@ -593,6 +596,10 @@ public class MyAIController extends CarController{
 			}
 			
 			return false;
+		}
+		
+		public void FollowPath(Path path) {
+			
 		}
 
 }
