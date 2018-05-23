@@ -22,6 +22,7 @@ public class MyAIController extends CarController{
 		
 		HashMap<Coordinate, MapTile> maze = new HashMap<Coordinate, MapTile>();
 		HashMap<Coordinate, Integer> KeyMap = new HashMap<Coordinate, Integer>();
+		ArrayList<Coordinate> HealMap = new ArrayList<Coordinate>();
 		
 		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
@@ -73,6 +74,9 @@ public class MyAIController extends CarController{
 					//Add key to key hashmap if it exists
 					if(ContainsKey(mt) != 0) {
 						KeyMap.put(Coord, ContainsKey(mt));
+					}
+					if(ContainsHeal(mt)) {
+						HealMap.add(Coord);
 					}
 					
 				}
@@ -547,7 +551,7 @@ public class MyAIController extends CarController{
 		public int ContainsKey(MapTile mt) {
 			if(mt.getType().toString().equals("TRAP")) {
 				TrapTile tt = (TrapTile) mt;
-				if(tt.getTrap().equals("LAVA")) {
+				if(tt.getTrap().equals("lava")) {
 					LavaTrap lt = (LavaTrap) tt;
 					if(lt.getKey() != 0) {
 						return getKey();
@@ -555,6 +559,18 @@ public class MyAIController extends CarController{
 				}
 			}
 			return 0;
+		}
+		
+		//Check if heal tile
+		public boolean ContainsHeal(MapTile mt) {
+			if(mt.getType().toString().equals("TRAP")) {
+				TrapTile tt = (TrapTile) mt;
+				if(tt.getTrap().equals("health")) {
+					return true;
+				}
+			}
+			
+			return false;
 		}
 		
 
