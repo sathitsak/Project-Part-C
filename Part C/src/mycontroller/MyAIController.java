@@ -24,7 +24,8 @@ public class MyAIController extends CarController{
 		
 		// Offset used to differentiate between 0 and 360 degrees
 		private int EAST_THRESHOLD = 3;
-		
+		public int destinationX=6;
+		public int destinationY=4;
 		public MyAIController(Car car) {
 			super(car);
 		}
@@ -37,9 +38,30 @@ public class MyAIController extends CarController{
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
 			
+			
+			
 			checkStateChange();
-
+			Coordinate currentPosition = new Coordinate(getPosition());
+			turnLeft(delta);
+			if(currentPosition.x<destinationX) {
+				if(getSpeed() < CAR_SPEED){
+					//applyLeftTurn(getOrientation(),delta);
+					//applyForwardAcceleration();
+					goToTileX(delta);
+				}
+				// Turn towards the north
+		//		if(!getOrientation().equals(WorldSpatial.Direction.NORTH)){
+		//			lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+		//			applyLeftTurn(getOrientation(),delta);
+		//		}
+				
+			}
+			
+			
+			
+//////////////////////////////////////////////////////////////////////////////////////////////
 			// If you are not following a wall initially, find a wall to stick to!
+			/*
 			if(!isFollowingWall){
 				if(getSpeed() < CAR_SPEED){
 					applyForwardAcceleration();
@@ -98,7 +120,8 @@ public class MyAIController extends CarController{
 					isTurningLeft = true;
 				}
 			}
-			
+			*/
+		/////////////////////////////////////////////////////////////////////////////	
 			
 
 		}
@@ -370,5 +393,30 @@ public class MyAIController extends CarController{
 			return false;
 		}
 		
+		public boolean goToTileX(float delta) {
+			
+			if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
+				switch(getOrientation()){
+					
+				case NORTH:
+					turnRight(delta);
+				case SOUTH:
+					turnRight(delta);
+				case WEST:
+					turnRight(delta);
+				default:
+					return false;
+				}
+			}else {
+				applyForwardAcceleration();
+			}
+			
+			
+			
+			
+			
+			return false; //We arrive there yet
+			
+		}
 
 }
