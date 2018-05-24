@@ -26,16 +26,15 @@ public class MyAIController extends CarController{
 		HashMap<Coordinate, Integer> KeyMap = new HashMap<Coordinate, Integer>();
 		ArrayList<Coordinate> HealMap = new ArrayList<Coordinate>();
 		
-		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
-		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
-		ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
+		
 		int destinationX= 4;
 		int destinationY= 4;
 		int totalKey = getKey();
-//		int totalTile = 
+		
+		
 		float currentHealth = getHealth();
 		int i = 0;
-		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
+//		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 		private boolean isTurningLeft = false;
 		private boolean isTurningRight = false; 
@@ -50,8 +49,8 @@ public class MyAIController extends CarController{
 		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
-		private int EAST_THRESHOLD = 3;
-		private static final int SensorLimit = 4;
+//		private int EAST_THRESHOLD = 3;
+//		private static final int SensorLimit = 4;
 		private static final int NoChange = 0;
 		private static int j = 1;
 		boolean FinishPath = true;
@@ -182,6 +181,8 @@ public class MyAIController extends CarController{
 					
 					/////////////////////////////////Start driving to path//////////////////////////////////////////////////////////////////
 					
+					checkStateChange();
+					
 					//If Y changes
 					if(nextStep.y != NoChange) {
 						//If its northwards
@@ -269,87 +270,6 @@ public class MyAIController extends CarController{
 		}
 		
 		
-		
-		/**
-		 * Readjust the car to the orientation we are in.
-		 * @param lastTurnDirection
-		 * @param delta
-		 */
-		private void readjust(WorldSpatial.RelativeDirection lastTurnDirection, float delta) {
-			if(lastTurnDirection != null){
-				if(!isTurningRight && lastTurnDirection.equals(WorldSpatial.RelativeDirection.RIGHT)){
-					adjustRight(getOrientation(),delta);
-				}
-				else if(!isTurningLeft && lastTurnDirection.equals(WorldSpatial.RelativeDirection.LEFT)){
-					adjustLeft(getOrientation(),delta);
-				}
-			}
-			
-		}
-		
-		/**
-		 * Try to orient myself to a degree that I was supposed to be at if I am
-		 * misaligned.
-		 */
-		private void adjustLeft(WorldSpatial.Direction orientation, float delta) {
-			
-			switch(orientation){
-			case EAST:
-				if(getAngle() > WorldSpatial.EAST_DEGREE_MIN+EAST_THRESHOLD){
-					turnRight(delta);
-				}
-				break;
-			case NORTH:
-				if(getAngle() > WorldSpatial.NORTH_DEGREE){
-					turnRight(delta);
-				}
-				break;
-			case SOUTH:
-				if(getAngle() > WorldSpatial.SOUTH_DEGREE){
-					turnRight(delta);
-				}
-				break;
-			case WEST:
-				if(getAngle() > WorldSpatial.WEST_DEGREE){
-					turnRight(delta);
-				}
-				break;
-				
-			default:
-				break;
-			}
-			
-		}
-
-		private void adjustRight(WorldSpatial.Direction orientation, float delta) {
-			switch(orientation){
-			case EAST:
-				if(getAngle() > WorldSpatial.SOUTH_DEGREE && getAngle() < WorldSpatial.EAST_DEGREE_MAX){
-					turnLeft(delta);
-				}
-				break;
-			case NORTH:
-				if(getAngle() < WorldSpatial.NORTH_DEGREE){
-					turnLeft(delta);
-				}
-				break;
-			case SOUTH:
-				if(getAngle() < WorldSpatial.SOUTH_DEGREE){
-					turnLeft(delta);
-				}
-				break;
-			case WEST:
-				if(getAngle() < WorldSpatial.WEST_DEGREE){
-					turnLeft(delta);
-				}
-				break;
-				
-			default:
-				break;
-			}
-			
-		}
-		
 		/**
 		 * Checks whether the car's state has changed or not, stops turning if it
 		 *  already has.
@@ -434,51 +354,6 @@ public class MyAIController extends CarController{
 			}
 			
 		}
-
-		/**
-		 * Check if you have a wall in front of you!
-		 * @param orientation the orientation we are in based on WorldSpatial
-		 * @param currentView what the car can currently see
-		 * @return
-		 */
-		private boolean checkWallAhead(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView){
-			switch(orientation){
-			case EAST:
-				return checkEast(currentView);
-			case NORTH:
-				return checkNorth(currentView);
-			case SOUTH:
-				return checkSouth(currentView);
-			case WEST:
-				return checkWest(currentView);
-			default:
-				return false;
-			
-			}
-		}
-		
-		/**
-		 * Check if the wall is on your left hand side given your orientation
-		 * @param orientation
-		 * @param currentView
-		 * @return
-		 */
-		private boolean checkFollowingWall(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
-			
-			switch(orientation){
-			case EAST:
-				return checkNorth(currentView);
-			case NORTH:
-				return checkWest(currentView);
-			case SOUTH:
-				return checkEast(currentView);
-			case WEST:
-				return checkSouth(currentView);
-			default:
-				return false;
-			}
-			
-		}
 		
 
 		/**
@@ -552,23 +427,10 @@ public class MyAIController extends CarController{
 		}
 		
 		public boolean haveOneHealTile() {
-			if (healTile.size()>0) {
+			if (HealMap.size()>0) {
 				return true;
 			}
 			return false;
-		}
-		
-		public boolean sameTile(ArrayList<Coordinate> collection,Coordinate current) {
-			for(int i=0;i<collection.size();i++) {
-			if(collection.get(i) == current) {
-				System.out.println("SAME TILE");
-				return true;
-			}
-				
-			}
-			
-			return false;
-			
 		}
 		
 		public void addtilePosition(Coordinate currentPosition, ArrayList<Coordinate> collection) {
