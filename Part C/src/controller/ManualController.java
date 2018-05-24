@@ -37,13 +37,17 @@ public class ManualController extends CarController{
 		
 		HashMap<Coordinate, MapTile> currentView = getView();
 		Coordinate currentPosition = new Coordinate(getPosition());
-		Coordinate destination = new Coordinate(10,10);
+		Coordinate destination = new Coordinate(currentPosition.x,currentPosition.y+1);
 		//System.out.print("Total Tile in MAP"+totalTile);
 		//System.out.print("MAP H "+mapHeight);
 		//System.out.print("MAP W"+mapWidth);
 	//	MapTile currentTile = currentView.get(currentPosition);
+		if(isWall(destination)) {
+			System.out.print("YWALLLLLLLLLLLLLL");
+		}
+		
 		if(inRangeOfFour(currentPosition,destination)) {
-			System.out.print("You are in range of four");
+			//System.out.print("You are in range of four");
 		}
 		
 		if(searchForDuplicateCoordinate(visitedTile, currentPosition) == false) {
@@ -353,5 +357,18 @@ public class ManualController extends CarController{
 				return true;
 			}				
 		}return false;
+	}
+	public boolean isWall(Coordinate coordinate) {
+		HashMap<Coordinate, MapTile> currentView = getView();
+		MapTile currentTile = currentView.get(coordinate);
+		MapTile.Type currentType = currentTile.getType();
+		if(MapTile.Type.WALL == currentType){
+			System.out.println("WALLLLLLLLLLLLLLLLL AHHHHHHHHHHHHHHHHH" );
+			return true;
+		}
+		
+		
+		return false;
+		
 	}
 }
