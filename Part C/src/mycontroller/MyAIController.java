@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 import tiles.LavaTrap;
 import tiles.MapTile;
@@ -28,11 +29,12 @@ public class MyAIController extends CarController{
 		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
 		ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
-		
+		int destinationX= 4;
+		int destinationY= 4;
 		int totalKey = getKey();
 //		int totalTile = 
 		float currentHealth = getHealth();
-		
+		int i = 0;
 		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 		private boolean isTurningLeft = false;
@@ -108,13 +110,45 @@ public class MyAIController extends CarController{
 						if((int)Key.getValue() == totalKey - 1) {
 							Coordinate KeyCo = (Coordinate)Key.getKey();
 							testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, KeyCo.x, KeyCo.y);
-							NextKey = true;
+							//NextKey = true;
 						}
 					}
 					
 					//Otherwise search as normal
 					if(NextKey == false) {
-						testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, NewTarget().x , 3);
+						
+						Coordinate destination = new Coordinate(destinationX,destinationY);
+						
+						if(inRangeOfDes(currentPosition,destination)) {
+							destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
+							 destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
+							 destination = new Coordinate(destinationX,destinationY);
+							System.out.println("inrange");
+							while(isWall(destination) ) {
+								System.out.println("Destination is wall");
+								if(currentPosition.x-5>0 && currentPosition.y-5>0) {
+									System.out.println("Random Coordinate X or Y is > 4 " );
+									destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
+									destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y-4, currentPosition.y+4);
+									destination = new Coordinate(destinationX,destinationY);
+								}else {
+									System.out.println("Random Coordinate X or Y is < 4 " );
+									destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
+									destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
+									destination = new Coordinate(destinationX,destinationY);
+								}
+								
+								// destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
+								// destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y-4, currentPosition.y+4);
+								 
+								 
+							}
+								
+						}
+						
+						System.out.println("current position is"+ currentPosition);
+						System.out.println("current destination is"+ destination);
+						testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, destination.x , destination.y );
 					}
 
 //					FinishPath = false;
@@ -681,5 +715,84 @@ public class MyAIController extends CarController{
 			Coordinate coord = new Coordinate(newX, newY);
 			return coord;
 		}
+		public Coordinate RandomCo(Coordinate currentPosition) {
+			
+			
+			int randomNumX = 0;
+			int randomNumY = 0;
+			Coordinate coord = currentPosition;
+			
+				if(randomNumX==0)				{
+					while(!isWall(coord)) {
+						if(currentPosition.x-4<0 || currentPosition.y-4<0) {
+							 randomNumX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
+							 randomNumY = ThreadLocalRandom.current().nextInt(currentPosition.y-4, currentPosition.y+4);
+						}else {
+							System.out.println("Random Coordinate X or Y is < 4 " );
+							randomNumX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
+							 randomNumY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
+							
+						}
+					
+					  coord = new Coordinate(randomNumX, randomNumY);
+					}
+				}
+			
+			
+				
+				System.out.println("Random Coordinate X is"+randomNumX+"Y = "+randomNumY );
+				return coord;
+			
+		}
+		public boolean isWall(Coordinate coordinate) {
+			HashMap<Coordinate, MapTile> currentView = getView();
+			MapTile currentTile = currentView.get(coordinate);
+			MapTile.Type currentType = currentTile.getType();
+			if(MapTile.Type.WALL == currentType){
+				
+				return true;
+			}
+			
+			
+			return false;
+			
+		}
 		
+		public boolean inRangeOfDes(Coordinate current,Coordinate destination) {
+			if (current.x == destination.x-1) {
+				if (current.y == destination.y-1) {
+					return true;
+				}
+				if (current.y == destination.y) {
+					return true;
+				}
+				if (current.y == destination.y+1) {
+					return true;
+				}
+			}
+			if (current.x == destination.x) {
+				if (current.y == destination.y-1) {
+					return true;
+				}
+				if (current.y == destination.y) {
+					return true;
+				}
+				if (current.y == destination.y+1) {
+					return true;
+				}
+			}
+			if (current.x == destination.x+1) {
+				if (current.y == destination.y-1) {
+					return true;
+				}
+				if (current.y == destination.y) {
+					return true;
+				}
+				if (current.y == destination.y+1) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
 }
