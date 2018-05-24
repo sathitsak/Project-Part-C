@@ -25,10 +25,11 @@ public class MyAIController extends CarController{
 		HashMap<Coordinate, MapTile> maze = new HashMap<Coordinate, MapTile>();
 		HashMap<Coordinate, Integer> KeyMap = new HashMap<Coordinate, Integer>();
 		ArrayList<Coordinate> HealMap = new ArrayList<Coordinate>();
+		private int updateCount=0;
+		private int reverseCount=0;
 		
-		
-		int destinationX= 4;
-		int destinationY= 4;
+		int destinationX;
+		int destinationY;
 		int totalKey = getKey();
 		
 		
@@ -45,7 +46,7 @@ public class MyAIController extends CarController{
 		PathFinder finder;
 		
 		// Car Speed to move at
-		private final double CAR_SPEED = 1.1;
+		private final double CAR_SPEED = 1.25;
 		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
@@ -112,23 +113,18 @@ public class MyAIController extends CarController{
 							//NextKey = true;
 						}
 					}
-					if(getSpeed()<0.03) {
-						Coordinate north = new Coordinate(currentPosition.x, currentPosition.y+1);
-						Coordinate south = new Coordinate(currentPosition.x, currentPosition.y-1);
-						Coordinate east = new Coordinate(currentPosition.x+1, currentPosition.y);
-						Coordinate west = new Coordinate(currentPosition.x-1, currentPosition.y);
-					  while(isWall(north) || isWall(south) ||isWall(east) ||isWall(west)) {
-						  applyReverseAcceleration();
-					  }
-					  applyForwardAcceleration();
-					  applyRightTurn(getOrientation(),delta);
-					}
+					
 					
 					//Otherwise search as normal
-					if(NextKey == false) {
+					
+					System.out.println(updateCount);
+					
+					
+					
+					if(updateCount %500 ==0) {
 						
 						Coordinate destination = new Coordinate(destinationX,destinationY);
-						
+						System.out.println("Current Destination is"+destination);
 						if(inRangeOfFour(currentPosition,destination)) {
 							System.out.println("inrange");
 							 destination = new Coordinate(destinationX,destinationY);
@@ -153,10 +149,25 @@ public class MyAIController extends CarController{
 						System.out.println("current destination is"+ destination);
 						testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, destination.x , destination.y );
 					}
-
+						updateCount++;
 //					FinishPath = false;
 //				}
-
+						if(getSpeed()<=0 && updateCount %200 ==0) {
+							
+							  applyReverseAcceleration();
+							  destinationX = ThreadLocalRandom.current().nextInt(0, World.MAP_WIDTH-1);
+								 destinationY = ThreadLocalRandom.current().nextInt(0, World.MAP_HEIGHT-1);
+								 Coordinate destination = new Coordinate(destinationX,destinationY);
+								 System.out.println("current position is"+ currentPosition);
+									System.out.println("current destination is"+ destination);
+								 testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, destination.x , destination.y );
+						  reverseCount=10;
+						}
+						if(reverseCount>0) {
+							 applyReverseAcceleration();
+							 reverseCount--;
+							 return;
+						}
 
 			
 
@@ -750,7 +761,8 @@ public class MyAIController extends CarController{
 			int randomNumY = 0;
 			Coordinate coord = currentPosition;
 			
-				if(randomNumX==0)				{
+						randomNumX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
+						randomNumY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
 					while(!isWall(coord)) {
 						if(currentPosition.x-4<0 || currentPosition.y-4<0) {
 							 randomNumX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
@@ -760,7 +772,7 @@ public class MyAIController extends CarController{
 							randomNumX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
 							 randomNumY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
 							
-						}
+						
 					
 					  coord = new Coordinate(randomNumX, randomNumY);
 					}

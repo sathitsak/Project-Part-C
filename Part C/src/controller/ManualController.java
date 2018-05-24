@@ -84,9 +84,11 @@ public class ManualController extends CarController{
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
         	applyReverseAcceleration();
+        	turnLeft(delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
         	turnLeft(delta);
+        	applyReverseAcceleration();
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
         	turnRight(delta);
