@@ -123,6 +123,7 @@ public class MyAIController extends CarController{
 							 destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
 							 destination = new Coordinate(destinationX,destinationY);
 							System.out.println("inrange");
+							
 							while(isWall(destination) ) {
 								System.out.println("Destination is wall");
 								if(currentPosition.x-5>0 && currentPosition.y-5>0) {
@@ -137,8 +138,7 @@ public class MyAIController extends CarController{
 									destination = new Coordinate(destinationX,destinationY);
 								}
 								
-								// destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
-								// destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y-4, currentPosition.y+4);
+								
 								 
 								 
 							}
@@ -656,5 +656,12 @@ public class MyAIController extends CarController{
 			}
 			
 			return false;
+		}
+		public boolean inRangeOfFour(Coordinate current,Coordinate destination) {
+			if (current.x > destination.x-4 && current.x < destination.x+4  ) {
+				if (current.y > destination.y-4 && current.y < destination.y+4 ) {
+					return true;
+				}				
+			}return false;
 		}
 }

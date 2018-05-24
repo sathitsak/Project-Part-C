@@ -37,26 +37,31 @@ public class ManualController extends CarController{
 		
 		HashMap<Coordinate, MapTile> currentView = getView();
 		Coordinate currentPosition = new Coordinate(getPosition());
-		System.out.print("Total Tile in MAP"+totalTile);
-		System.out.print("MAP H "+mapHeight);
-		System.out.print("MAP W"+mapWidth);
+		Coordinate destination = new Coordinate(10,10);
+		//System.out.print("Total Tile in MAP"+totalTile);
+		//System.out.print("MAP H "+mapHeight);
+		//System.out.print("MAP W"+mapWidth);
 	//	MapTile currentTile = currentView.get(currentPosition);
+		if(inRangeOfFour(currentPosition,destination)) {
+			System.out.print("You are in range of four");
+		}
+		
 		if(searchForDuplicateCoordinate(visitedTile, currentPosition) == false) {
 			visitedTile.add(currentPosition);
 			
-			System.out.print("visitedTile"+visitedTile);
+			//System.out.print("visitedTile"+visitedTile);
 			
 		}
 		if(sameTile(visitedTile,currentPosition) ==true) {
-			System.out.println("THIS IS SAME TILE!!!!!!!!!!!!!!!!!!!!!!!!!");
+			//System.out.println("THIS IS SAME TILE!!!!!!!!!!!!!!!!!!!!!!!!!");
 
 			
 		}
 		recordTileTypeAroundTheCar(currentView,currentPosition);
-		System.out.print("GET KEY TEST"+totalKey);
+		//System.out.print("GET KEY TEST"+totalKey);
 		
 		if(haveAllKeyLocation() == true) {
-			System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
+			//System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
 			
 		}
 		if(haveOneHealTile() == true) {
@@ -338,6 +343,15 @@ public class ManualController extends CarController{
 						
 						
 									}
-							}				
+							}	
+		
+		
+		}
+	public boolean inRangeOfFour(Coordinate current,Coordinate destination) {
+		if (current.x > destination.x-4 && current.x < destination.x+4  ) {
+			if (current.y > destination.y-4 && current.y < destination.y+4 ) {
+				return true;
+			}				
+		}return false;
 	}
 }
