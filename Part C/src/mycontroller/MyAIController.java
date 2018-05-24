@@ -118,29 +118,22 @@ public class MyAIController extends CarController{
 						
 						Coordinate destination = new Coordinate(destinationX,destinationY);
 						
-						if(inRangeOfDes(currentPosition,destination)) {
-							destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
-							 destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
-							 destination = new Coordinate(destinationX,destinationY);
+						if(inRangeOfFour(currentPosition,destination)) {
 							System.out.println("inrange");
+							 destination = new Coordinate(destinationX,destinationY);
 							
-							while(isWall(destination) ) {
+							
+							if(isWall(destination) ) {
 								System.out.println("Destination is wall");
-								if(currentPosition.x-5>0 && currentPosition.y-5>0) {
-									System.out.println("Random Coordinate X or Y is > 4 " );
-									destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
-									destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y-4, currentPosition.y+4);
-									destination = new Coordinate(destinationX,destinationY);
-								}else {
-									System.out.println("Random Coordinate X or Y is < 4 " );
-									destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
-									destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
-									destination = new Coordinate(destinationX,destinationY);
-								}
 								
+								destinationX = ThreadLocalRandom.current().nextInt(0, World.MAP_WIDTH-1);
+								 destinationY = ThreadLocalRandom.current().nextInt(0, World.MAP_HEIGHT-1);
 								
 								 
 								 
+							}else {
+								destinationX = ThreadLocalRandom.current().nextInt(0, World.MAP_WIDTH-1);
+								 destinationY = ThreadLocalRandom.current().nextInt(0, World.MAP_HEIGHT-1);
 							}
 								
 						}
