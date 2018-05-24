@@ -42,6 +42,7 @@ public class ManualController extends CarController{
 		//System.out.print("MAP H "+mapHeight);
 		//System.out.print("MAP W"+mapWidth);
 	//	MapTile currentTile = currentView.get(currentPosition);
+		System.out.println(getSpeed());
 		if(isWall(destination)) {
 			System.out.print("YWALLLLLLLLLLLLLL");
 		}

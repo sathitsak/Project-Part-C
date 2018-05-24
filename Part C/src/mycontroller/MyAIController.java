@@ -65,7 +65,7 @@ public class MyAIController extends CarController{
 		@Override
 		public void update(float delta) {
 			currentPosition = new Coordinate(getPosition());
-			
+			System.out.println(getSpeed());
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
 			
@@ -111,6 +111,17 @@ public class MyAIController extends CarController{
 							testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, KeyCo.x, KeyCo.y);
 							//NextKey = true;
 						}
+					}
+					if(getSpeed()<0.03) {
+						Coordinate north = new Coordinate(currentPosition.x, currentPosition.y+1);
+						Coordinate south = new Coordinate(currentPosition.x, currentPosition.y-1);
+						Coordinate east = new Coordinate(currentPosition.x+1, currentPosition.y);
+						Coordinate west = new Coordinate(currentPosition.x-1, currentPosition.y);
+					  while(isWall(north) || isWall(south) ||isWall(east) ||isWall(west)) {
+						  applyReverseAcceleration();
+					  }
+					  applyForwardAcceleration();
+					  applyRightTurn(getOrientation(),delta);
 					}
 					
 					//Otherwise search as normal
@@ -766,7 +777,7 @@ public class MyAIController extends CarController{
 			MapTile currentTile = currentView.get(coordinate);
 			MapTile.Type currentType = currentTile.getType();
 			if(MapTile.Type.WALL == currentType){
-				System.out.println("WALLLLLLLLLLLLLLLLL AHHHHHHHHHHHHHHHHH" );
+				
 				return true;
 			}
 			
