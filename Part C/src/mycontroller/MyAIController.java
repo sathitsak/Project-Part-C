@@ -907,6 +907,8 @@ public class MyAIController extends CarController{
 			
 			
 			}
+		
+		//Check if car have every tile with key location
 		public boolean haveAllKeyLocation() {
 			if (keyCollectorArrayList.size() == totalKey-1 )
 			{	
