@@ -38,8 +38,8 @@ public class MyAIController extends CarController{
 		ArrayList<Coordinate> shouldVisitedTile = new ArrayList<Coordinate>();
 		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
-		ArrayList<TestTileCollector> tileCollectorArrayList = new ArrayList<TestTileCollector>();
-		ArrayList<TestTileCollector> keyCollectorArrayList = new ArrayList<TestTileCollector>();
+		ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
+		ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
 		float currentHealth = getHealth();
 		int i = 0;
 		int s = 0;
@@ -144,6 +144,7 @@ public class MyAIController extends CarController{
 					recordTileTypeAroundTheCar(currentView,currentPosition);
 					if(haveAllKeyLocation() == true) {
 						System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
+						sortTileList(keyCollectorArrayList);
 						
 					}
 					if(haveOneHealTile() == true) {
@@ -773,6 +774,45 @@ public class MyAIController extends CarController{
 			return listSV;
 			
 		}
+		public ArrayList<Coordinate> goToKeyLocation(ArrayList<Coordinate> listSV, Coordinate startpoint) {
+			
+			
+			
+					//listSV.add(coordinate);
+					listSV.add(startpoint);
+				
+			
+				//Coordinate destination = new Coordinate(4,mapHeight-4*(i));
+			
+		//	System.out.println("LocationSV end");
+			return listSV;
+			
+		}
+		public ArrayList<TileCollector> sortTileList( ArrayList<TileCollector> listSV) {
+	
+			int size =listSV.size();
+			for (int i = 0; i < size-1; i++) {
+
+                if (listSV.get(i).getKeyNum() < listSV.get(i+1).getKeyNum()) {
+
+
+                    TileCollector temp1= listSV.get(i + 1);
+                    TileCollector temp2= listSV.get(i);
+                    listSV.set(i,temp1);
+                    listSV.set(i+1,temp2);
+
+                }
+            }
+			//listSV.add(coordinate);
+				
+
+
+		//Coordinate destination = new Coordinate(4,mapHeight-4*(i));
+
+				//	System.out.println("LocationSV end");
+				return listSV;
+
+}
 		public void recordTileTypeAroundTheCar(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 			//Quadrant 1
 			//Scan every possible tile in Q1 and collect their Type and location to TileCollector
@@ -787,7 +827,7 @@ public class MyAIController extends CarController{
 										keyTile.add(scanCoo);
 									//	System.out.println("KEY TILE"+keyTile);
 										int keyNum = getKeyNum(currentView, scanCoo);
-										TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
+										TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 										keyCollectorArrayList.add(keyTC);
 										System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 										
@@ -806,7 +846,7 @@ public class MyAIController extends CarController{
 							}
 			// Record every Tile				
 							MapTile.Type scanType = scanTile.getType();
-							TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
+							TileCollector tctile = new TileCollector(scanCoo,scanType);
 							
 							tileCollectorArrayList.add(tctile);
 							
@@ -826,7 +866,7 @@ public class MyAIController extends CarController{
 							keyTile.add(scanCoo);
 							//	System.out.println("KEY TILE"+keyTile);
 								int keyNum = getKeyNum(currentView, scanCoo);
-								TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
+								TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 								keyCollectorArrayList.add(keyTC);
 								System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 							}
@@ -843,7 +883,7 @@ public class MyAIController extends CarController{
 					}
 					
 					MapTile.Type scanType = scanTile.getType();
-					TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
+					TileCollector tctile = new TileCollector(scanCoo,scanType);
 					
 					tileCollectorArrayList.add(tctile);
 					
@@ -865,7 +905,7 @@ public class MyAIController extends CarController{
 									keyTile.add(scanCoo);
 									//	System.out.println("KEY TILE"+keyTile);
 										int keyNum = getKeyNum(currentView, scanCoo);
-										TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
+										TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 										keyCollectorArrayList.add(keyTC);
 										System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 									}
@@ -883,7 +923,7 @@ public class MyAIController extends CarController{
 							}
 							
 							MapTile.Type scanType = scanTile.getType();
-							TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
+							TileCollector tctile = new TileCollector(scanCoo,scanType);
 							//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
 							tileCollectorArrayList.add(tctile);
 							
@@ -905,7 +945,7 @@ public class MyAIController extends CarController{
 							keyTile.add(scanCoo);
 							//	System.out.println("KEY TILE"+keyTile);
 								int keyNum = getKeyNum(currentView, scanCoo);
-								TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
+								TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 								keyCollectorArrayList.add(keyTC);
 								System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 							}
@@ -922,7 +962,7 @@ public class MyAIController extends CarController{
 						
 					}
 					MapTile.Type scanType = scanTile.getType();
-					TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);			
+					TileCollector tctile = new TileCollector(scanCoo,scanType);			
 					tileCollectorArrayList.add(tctile);
 							
 							

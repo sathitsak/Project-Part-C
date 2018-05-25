@@ -29,4 +29,6 @@ public class TileCollector {
 	public int getKeyNum(){
 		return keyNumber;
 	}
+
+	
 }
