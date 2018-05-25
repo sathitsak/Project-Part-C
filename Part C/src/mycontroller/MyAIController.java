@@ -21,14 +21,14 @@ public class MyAIController extends CarController{
 	// How many minimum units the wall is away from the player.
 		private int wallSensitivity = 2;
 		
-		
+		Coordinate startPosition =  new Coordinate(0, 0);
 		HashMap<Coordinate, MapTile> maze = new HashMap<Coordinate, MapTile>();
 		HashMap<Coordinate, Integer> KeyMap = new HashMap<Coordinate, Integer>();
 		ArrayList<Coordinate> HealMap = new ArrayList<Coordinate>();
 		private int updateCount=0;
 		private int reverseCount=0;
 		int once = 0;
-		
+		Coordinate destination = new Coordinate(0, 0);
 		int destinationX;
 		int destinationY;
 		int totalKey = getKey();
@@ -40,6 +40,8 @@ public class MyAIController extends CarController{
 		float currentHealth = getHealth();
 		int i = 0;
 		int s = 0;
+		int e =13;
+		int t= 7;
 //		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 		private boolean isTurningLeft = false;
@@ -101,9 +103,12 @@ public class MyAIController extends CarController{
 			if(once == 0) {
 				System.out.println("just once");
 				locationShouldVisit(shouldVisitedTile);
+				startPosition = currentPosition;
+				System.out.println("startPosition"+ startPosition);
 				once = 1;
+				
 			}
-			System.out.println("SVT s"+shouldVisitedTile.get(s));
+			
 			
 			
 			
@@ -128,10 +133,17 @@ public class MyAIController extends CarController{
 					//Otherwise search as normal
 					
 					System.out.println(updateCount);
-					testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, shouldVisitedTile.get(s).x, shouldVisitedTile.get(s).y);
-					if(inRangeOfDes(currentPosition, shouldVisitedTile.get(s))) {
-						s++;
+					
+					System.out.println("SVT s"+shouldVisitedTile.get(s));
+					
+					testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, e, t);
+					destination = new Coordinate(e,t);
+					if(inRangeOfTwo(currentPosition, destination)) {
+						e=2;
+						t=3;
 					}
+					System.out.println("X"+e);
+					System.out.println("Y"+t);
 					/*
 					if(updateCount %500 ==0) {
 						
@@ -171,23 +183,28 @@ public class MyAIController extends CarController{
 //					FinishPath = false;
 //				}
 						if(getSpeed()<=0 && updateCount %200 ==0) {
+							System.out.println("stuck in the wall");
+							destination = new Coordinate(2,3);
 							
-							  applyReverseAcceleration();
-							  destinationX = ThreadLocalRandom.current().nextInt(0, World.MAP_WIDTH-1);
-								 destinationY = ThreadLocalRandom.current().nextInt(0, World.MAP_HEIGHT-1);
-								 Coordinate destination = new Coordinate(destinationX,destinationY);
-								 System.out.println("current position is"+ currentPosition);
-									System.out.println("current destination is"+ destination);
-								 testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, destination.x , destination.y );
-						  reverseCount=15;
+							  
+							applyReverseAcceleration();
+							
+						  reverseCount=50;
 						}
 						if(reverseCount>0) {
+							System.out.println("Enter reverse count");
 							 applyReverseAcceleration();
+							Coordinate southwall = new Coordinate(currentPosition.x,currentPosition.y-1);
+							if(isWall(southwall )) {
+								applyLeftTurn(getOrientation(),delta); 	
+							}else
+							
+							 applyRightTurn(getOrientation(),delta); 
 							 reverseCount--;
 							 return;
 						}
 
-			
+						System.out.println("Current destination X="+e +" Y = " +t);
 
 				//As long as the path exists
 			if(testPath != null) {
@@ -223,102 +240,26 @@ public class MyAIController extends CarController{
 							//If not facing north, face north and drive
 							if(!getOrientation().equals(WorldSpatial.Direction.NORTH)) {
 								if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
-									System.out.println("Want to go NORTH BUT I AM EAST" );
-									Coordinate leftSide = new Coordinate(currentPosition.x, currentPosition.y+1);
-									if(isWall(leftSide)) {
-										System.out.println("LEFT SIDE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else {
 									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 									applyLeftTurn(getOrientation(),delta);
-									}
 								}
-								if(getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
-									System.out.println("Want to go NORTH BUT I AM SOUTH" );
-									Coordinate leftSide = new Coordinate(currentPosition.x-1, currentPosition.y);
-									Coordinate rightSide = new Coordinate(currentPosition.x+1, currentPosition.y);
-									if(isWall(leftSide)) {
-										System.out.println("WALL LEFT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else if(isWall(rightSide)) {
-										System.out.println("WALL RIGHT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
 									}
-								}
-								if(getOrientation().equals(WorldSpatial.Direction.WEST)) {
-									System.out.println("Want to go NORTH BUT I AM WEST" );
-									Coordinate leftSide = new Coordinate(currentPosition.x, currentPosition.y-1);
-									Coordinate rightSide = new Coordinate(currentPosition.x, currentPosition.y+1);
-									if(isWall(leftSide)) {
-										System.out.println("WALL LEFT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else if(isWall(rightSide)) {
-										System.out.println("WALL RIGHT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}
-								}
 							}
 						}
 						else {
 							//If not facing south, face south and drive
-							if(!getOrientation().equals(WorldSpatial.Direction.SOUTH)) {						
+							if(!getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
 								if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
-									System.out.println("Want to go SOUTH BUT I AM EAST" );
-									Coordinate rightSide = new Coordinate(currentPosition.x, currentPosition.y-1);
-									if(isWall(rightSide)) {
-										System.out.println("WALLLLLLLLLLLLLLLLL AHHHHHHHHHHHHHHHHH" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
-										
 									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-									applyRightTurn(getOrientation(),delta);}
+									applyRightTurn(getOrientation(),delta);
 								}
-								if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
-									System.out.println("Want to go SOUTH BUT I AM NORTH" );
-									Coordinate leftSide = new Coordinate(currentPosition.x-1, currentPosition.y);
-									Coordinate rightSide = new Coordinate(currentPosition.x+1, currentPosition.y);
-									if(isWall(leftSide)) {
-										System.out.println("WALL LEFT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else if(isWall(rightSide)) {
-										System.out.println("WALL RIGHT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+									applyLeftTurn(getOrientation(),delta);
 									}
-								}
-								if(getOrientation().equals(WorldSpatial.Direction.WEST)) {
-									System.out.println("Want to go SOUTH BUT I AM WEST" );
-									Coordinate leftSide = new Coordinate(currentPosition.x, currentPosition.y-1);
-									Coordinate rightSide = new Coordinate(currentPosition.x, currentPosition.y+1);
-									if(isWall(leftSide)) {
-										System.out.println("WALL LEFT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else if(isWall(rightSide)) {
-										System.out.println("WALL RIGHT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}
-								}
 							}
 						}
 					}
@@ -328,108 +269,31 @@ public class MyAIController extends CarController{
 						if(nextStep.x > NoChange) {
 							//If not facing East, face east and drive
 							if(!getOrientation().equals(WorldSpatial.Direction.EAST)){
-								
 								if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
-									System.out.println("Want to go EAST BUT I AM NORTH" );
-									Coordinate rightSide = new Coordinate(currentPosition.x+1, currentPosition.y);
-									if(isWall(rightSide)) {
-										System.out.println("WALLLLLLLLLLLLLLLLL AHHHHHHHHHHHHHHHHH" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
 									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-									applyRightTurn(getOrientation(),delta);}
+									applyRightTurn(getOrientation(),delta);
 								}
-								if(getOrientation().equals(WorldSpatial.Direction.WEST)) {
-									System.out.println("Want to go EAST BUT I AM WEST" );
-									Coordinate leftSide = new Coordinate(currentPosition.x, currentPosition.y-1);
-									Coordinate rightSide = new Coordinate(currentPosition.x, currentPosition.y+1);
-									if(isWall(leftSide)) {
-										System.out.println("WALL LEFT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else if(isWall(rightSide)) {
-										System.out.println("WALL RIGHT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 									applyLeftTurn(getOrientation(),delta);
-										
 									}
-								}
-								if(getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
-									System.out.println("Want to go EAST BUT I AM SOUTH" );
-									Coordinate leftSide = new Coordinate(currentPosition.x+1, currentPosition.y);
-									Coordinate rightSide = new Coordinate(currentPosition.x-1, currentPosition.y);
-									if(isWall(leftSide)) {
-										System.out.println("WALL LEFT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else if(isWall(rightSide)) {
-										System.out.println("WALL RIGHT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}
-								}
 							}
 						}
 						else {
 							//If not facing west, face west and drive
 							if(!getOrientation().equals(WorldSpatial.Direction.WEST)){
 								if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
-									System.out.println("Want to go WEST BUT I AM NORTH" );
-									Coordinate leftSide = new Coordinate(currentPosition.x-1, currentPosition.y);
-									if(isWall(leftSide)) {
-										System.out.println("LEFT SIDE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else {
 									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 									applyLeftTurn(getOrientation(),delta);
-									}
 								}
-								if(getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
-									System.out.println("Want to go WEST BUT I AM SOUTH" );
-									Coordinate leftSide = new Coordinate(currentPosition.x-1, currentPosition.y);
-									Coordinate rightSide = new Coordinate(currentPosition.x+1, currentPosition.y);
-									if(isWall(leftSide)) {
-										System.out.println("WALL LEFT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else if(isWall(rightSide)) {
-										System.out.println("WALL RIGHT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-										
+								else {
+									lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+									applyRightTurn(getOrientation(),delta);
 									}
-								}
-								if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
-									System.out.println("Want to go WEST BUT I AM EAST" );
-									Coordinate leftSide = new Coordinate(currentPosition.x, currentPosition.y+1);
-									Coordinate rightSide = new Coordinate(currentPosition.x, currentPosition.y-1);
-									if(isWall(leftSide)) {
-										System.out.println("WALL LEFT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-										applyRightTurn(getOrientation(),delta);
-									}else if(isWall(rightSide)) {
-										System.out.println("WALL RIGHT SIDE" );
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-									}else {
-										lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-										applyLeftTurn(getOrientation(),delta);
-										
-									}
-								}
 							}
 						}
 					}
+					
 					
 					if(getSpeed() < CAR_SPEED) {
 						applyForwardAcceleration();
@@ -856,6 +720,13 @@ public class MyAIController extends CarController{
 		public boolean inRangeOfFour(Coordinate current,Coordinate destination) {
 			if (current.x > destination.x-4 && current.x < destination.x+4  ) {
 				if (current.y > destination.y-4 && current.y < destination.y+4 ) {
+					return true;
+				}				
+			}return false;
+		}
+		public boolean inRangeOfTwo(Coordinate current,Coordinate destination) {
+			if (current.x > destination.x-2 && current.x < destination.x+2  ) {
+				if (current.y > destination.y-2 && current.y < destination.y+2 ) {
 					return true;
 				}				
 			}return false;

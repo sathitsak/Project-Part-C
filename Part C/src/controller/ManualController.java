@@ -47,10 +47,10 @@ public class ManualController extends CarController{
 		
 		
 		locationShouldVisit(shouldVisitedTile);
-		for(int i=0;i<shouldVisitedTile.size();i++) {
-			System.out.println("shouldVisitedTile LIST");
-			System.out.println(shouldVisitedTile.get(i));
-		}
+	//	for(int i=0;i<shouldVisitedTile.size();i++) {
+	//		System.out.println("shouldVisitedTile LIST");
+	//		System.out.println(shouldVisitedTile.get(i));
+	//	}
 		if(isWall(destination)) {
 			System.out.print("YWALLLLLLLLLLLLLL");
 		}
@@ -92,11 +92,11 @@ public class ManualController extends CarController{
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
         	applyReverseAcceleration();
-        	turnLeft(delta);
+        	
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
         	turnLeft(delta);
-        	applyReverseAcceleration();
+        	
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
         	turnRight(delta);
