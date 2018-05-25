@@ -19,6 +19,7 @@ public class ManualController extends CarController{
 	ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 	ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
 	ArrayList<Coordinate> visitedTile = new ArrayList<Coordinate>();
+	ArrayList<Coordinate> shouldVisitedTile = new ArrayList<Coordinate>();
 	ArrayList<TestTileCollector> tileCollectorArrayList = new ArrayList<TestTileCollector>();
 	ArrayList<TestTileCollector> keyCollectorArrayList = new ArrayList<TestTileCollector>();
 	int totalKey = getKey();
@@ -33,16 +34,23 @@ public class ManualController extends CarController{
 	
 	
 	public void update(float delta){
-		
+		int a = (int) Math.ceil ( 2.001 );
 		
 		HashMap<Coordinate, MapTile> currentView = getView();
 		Coordinate currentPosition = new Coordinate(getPosition());
 		Coordinate destination = new Coordinate(currentPosition.x,currentPosition.y+1);
-		//System.out.print("Total Tile in MAP"+totalTile);
-		//System.out.print("MAP H "+mapHeight);
-		//System.out.print("MAP W"+mapWidth);
+		System.out.println("Total Tile in MAP"+totalTile);
+		System.out.println("MAP H "+mapHeight);
+		System.out.println("MAP W "+mapWidth);
 	//	MapTile currentTile = currentView.get(currentPosition);
-		System.out.println(getSpeed());
+		System.out.println("Current speed is "+getSpeed());
+		
+		
+		locationShouldVisit(shouldVisitedTile);
+		for(int i=0;i<shouldVisitedTile.size();i++) {
+			System.out.println("shouldVisitedTile LIST");
+			System.out.println(shouldVisitedTile.get(i));
+		}
 		if(isWall(destination)) {
 			System.out.print("YWALLLLLLLLLLLLLL");
 		}
@@ -63,10 +71,10 @@ public class ManualController extends CarController{
 			
 		}
 		recordTileTypeAroundTheCar(currentView,currentPosition);
-		//System.out.print("GET KEY TEST"+totalKey);
+		System.out.print("GET KEY TEST"+totalKey);
 		
 		if(haveAllKeyLocation() == true) {
-			//System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
+			System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
 			
 		}
 		if(haveOneHealTile() == true) {
@@ -372,6 +380,29 @@ public class ManualController extends CarController{
 		
 		
 		return false;
+		
+	}
+	public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV) {
+		
+		int totalSV = (int) Math.ceil(totalTile/91);
+		//System.out.println("totalSV = "+totalSV );
+		int totalX = (int) Math.ceil((mapWidth-4)/9)+1;
+		int totalY = (int) Math.ceil((mapHeight-4)/9)+1;
+		//System.out.println("LocationSV start" +totalX+totalY);
+		for(int i=0; i<totalY ; i++) {
+			for(int j=0; j<totalX ; j++) {
+				int x = 4+9*(j);
+				int y = mapHeight-4-9*(i);
+				//System.out.println("Coordinate["+x+","+y+"]");
+				Coordinate coordinate = new Coordinate(x,y);
+				listSV.add(coordinate);
+				
+			}
+			
+			//Coordinate destination = new Coordinate(4,mapHeight-4*(i));
+		}
+	//	System.out.println("LocationSV end");
+		return listSV;
 		
 	}
 }

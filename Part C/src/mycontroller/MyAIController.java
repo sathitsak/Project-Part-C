@@ -27,14 +27,19 @@ public class MyAIController extends CarController{
 		ArrayList<Coordinate> HealMap = new ArrayList<Coordinate>();
 		private int updateCount=0;
 		private int reverseCount=0;
+		int once = 0;
 		
 		int destinationX;
 		int destinationY;
 		int totalKey = getKey();
-		
+		int mapHeight = World.MAP_HEIGHT;
+		int mapWidth = World.MAP_WIDTH;
+		int totalTile = mapHeight*mapWidth;
+		ArrayList<Coordinate> shouldVisitedTile = new ArrayList<Coordinate>();
 		
 		float currentHealth = getHealth();
 		int i = 0;
+		int s = 0;
 //		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 		private boolean isTurningLeft = false;
@@ -93,7 +98,12 @@ public class MyAIController extends CarController{
 					
 				}
 			}
-			
+			if(once == 0) {
+				System.out.println("just once");
+				locationShouldVisit(shouldVisitedTile);
+				once = 1;
+			}
+			System.out.println("SVT s"+shouldVisitedTile.get(s));
 			
 			
 			
@@ -118,9 +128,11 @@ public class MyAIController extends CarController{
 					//Otherwise search as normal
 					
 					System.out.println(updateCount);
-					
-					
-					
+					testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, shouldVisitedTile.get(s).x, shouldVisitedTile.get(s).y);
+					if(inRangeOfDes(currentPosition, shouldVisitedTile.get(s))) {
+						s++;
+					}
+					/*
 					if(updateCount %500 ==0) {
 						
 						Coordinate destination = new Coordinate(destinationX,destinationY);
@@ -129,18 +141,23 @@ public class MyAIController extends CarController{
 							System.out.println("inrange");
 							 destination = new Coordinate(destinationX,destinationY);
 							
-							
-							if(isWall(destination) ) {
+							 destinationX = ThreadLocalRandom.current().nextInt(0, World.MAP_WIDTH-1);
+							 destinationY = ThreadLocalRandom.current().nextInt(0, World.MAP_HEIGHT-1);
+							while(isWall(destination) ) {
+								
 								System.out.println("Destination is wall");
 								
-								destinationX = ThreadLocalRandom.current().nextInt(0, World.MAP_WIDTH-1);
-								 destinationY = ThreadLocalRandom.current().nextInt(0, World.MAP_HEIGHT-1);
-								
+								if(currentPosition.x-4<0 || currentPosition.y-4<0) {
+									destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
+									destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y-4, currentPosition.y+4);
+								}else {
+									System.out.println("Random Coordinate X or Y is < 4 " );
+									destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
+									destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);							 
+								}
+								 destination = new Coordinate(destinationX,destinationY);
 								 
 								 
-							}else {
-								destinationX = ThreadLocalRandom.current().nextInt(0, World.MAP_WIDTH-1);
-								 destinationY = ThreadLocalRandom.current().nextInt(0, World.MAP_HEIGHT-1);
 							}
 								
 						}
@@ -149,6 +166,7 @@ public class MyAIController extends CarController{
 						System.out.println("current destination is"+ destination);
 						testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, destination.x , destination.y );
 					}
+					*/
 						updateCount++;
 //					FinishPath = false;
 //				}
@@ -161,7 +179,7 @@ public class MyAIController extends CarController{
 								 System.out.println("current position is"+ currentPosition);
 									System.out.println("current destination is"+ destination);
 								 testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, destination.x , destination.y );
-						  reverseCount=10;
+						  reverseCount=15;
 						}
 						if(reverseCount>0) {
 							 applyReverseAcceleration();
@@ -841,5 +859,28 @@ public class MyAIController extends CarController{
 					return true;
 				}				
 			}return false;
+		}
+		public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV) {
+			
+			int totalSV = (int) Math.ceil(totalTile/91);
+			//System.out.println("totalSV = "+totalSV );
+			int totalX = (int) Math.ceil((mapWidth-4)/9)+1;
+			int totalY = (int) Math.ceil((mapHeight-4)/9)+1;
+			//System.out.println("LocationSV start" +totalX+totalY);
+			for(int i=0; i<totalY ; i++) {
+				for(int j=0; j<totalX ; j++) {
+					int x = 4+9*(j);
+					int y = mapHeight-4-9*(i);
+					//System.out.println("Coordinate["+x+","+y+"]");
+					Coordinate coordinate = new Coordinate(x,y);
+					listSV.add(coordinate);
+					
+				}
+				
+				//Coordinate destination = new Coordinate(4,mapHeight-4*(i));
+			}
+		//	System.out.println("LocationSV end");
+			return listSV;
+			
 		}
 }
