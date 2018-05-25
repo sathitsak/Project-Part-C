@@ -36,7 +36,10 @@ public class MyAIController extends CarController{
 		int mapWidth = World.MAP_WIDTH;
 		int totalTile = mapHeight*mapWidth;
 		ArrayList<Coordinate> shouldVisitedTile = new ArrayList<Coordinate>();
-		
+		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
+		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
+		ArrayList<TestTileCollector> tileCollectorArrayList = new ArrayList<TestTileCollector>();
+		ArrayList<TestTileCollector> keyCollectorArrayList = new ArrayList<TestTileCollector>();
 		float currentHealth = getHealth();
 		int i = 0;
 		int s = 0;
@@ -138,8 +141,15 @@ public class MyAIController extends CarController{
 					
 					System.out.println("SVT s"+shouldVisitedTile.get(s));
 					destination = new Coordinate(e,t);
-					
-					
+					recordTileTypeAroundTheCar(currentView,currentPosition);
+					if(haveAllKeyLocation() == true) {
+						System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
+						
+					}
+					if(haveOneHealTile() == true) {
+						System.out.println("YOU GOT ONE HEAL LOCATION!!!!!!!");			
+						
+					}
 					if(inRangeOfTwo(currentPosition, destination) || i==0) {
 						
 						e=shouldVisitedTile.get(i).x;
@@ -762,5 +772,171 @@ public class MyAIController extends CarController{
 		//	System.out.println("LocationSV end");
 			return listSV;
 			
+		}
+		public void recordTileTypeAroundTheCar(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			//Quadrant 1
+			//Scan every possible tile in Q1 and collect their Type and location to TileCollector
+					for(int y=4; y>-1;y--) {
+						for(int x=4; x>-1;x--) {
+							MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y+y));				
+							Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y+y);
+			//If found tile with key store in special TileCollector				
+							if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+								
+								if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+										keyTile.add(scanCoo);
+									//	System.out.println("KEY TILE"+keyTile);
+										int keyNum = getKeyNum(currentView, scanCoo);
+										TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
+										keyCollectorArrayList.add(keyTC);
+										System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
+										
+									}
+									
+								
+							}
+							
+			// For healTile we just going to remember it location so we use Coordinator				
+							if(landOnHealTile(currentView,scanCoo)) {
+								if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+									healTile.add(scanCoo);
+									//System.out.println("Heal TILE"+healTile);
+								}
+								
+							}
+			// Record every Tile				
+							MapTile.Type scanType = scanTile.getType();
+							TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
+							
+							tileCollectorArrayList.add(tctile);
+							
+						}
+					}
+			//Quadrant 2
+			for(int y=4; y>-1;y--) {
+				for(int x=0; x<5;x++) {
+					MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y+y));				
+					Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y+y);
+					
+					if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+						
+						if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+								//keyTile.add(scanCoo);
+								//System.out.println("KEY TILE"+keyTile);
+							keyTile.add(scanCoo);
+							//	System.out.println("KEY TILE"+keyTile);
+								int keyNum = getKeyNum(currentView, scanCoo);
+								TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
+								keyCollectorArrayList.add(keyTC);
+								System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
+							}
+							
+						
+					}
+					
+					if(landOnHealTile(currentView,scanCoo)) {
+						if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+							healTile.add(scanCoo);
+							//System.out.println("Heal TILE"+healTile);
+						}
+						
+					}
+					
+					MapTile.Type scanType = scanTile.getType();
+					TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
+					
+					tileCollectorArrayList.add(tctile);
+					
+					
+					
+				}
+			}
+			//Quadrant 3
+					for(int y=0; y<5;y++) {
+						for(int x=4; x>-1;x--) {
+							MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y-y));				
+							Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y-y);
+							
+							if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+								
+								if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+										//keyTile.add(scanCoo);
+										//System.out.println("KEY TILE"+keyTile);
+									keyTile.add(scanCoo);
+									//	System.out.println("KEY TILE"+keyTile);
+										int keyNum = getKeyNum(currentView, scanCoo);
+										TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
+										keyCollectorArrayList.add(keyTC);
+										System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
+									}
+									
+								
+							}
+							
+							
+							if(landOnHealTile(currentView,scanCoo)) {
+								if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+									healTile.add(scanCoo);
+									//System.out.println("Heal TILE"+healTile);
+								}
+								
+							}
+							
+							MapTile.Type scanType = scanTile.getType();
+							TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);
+							//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
+							tileCollectorArrayList.add(tctile);
+							
+							
+							
+						}
+					}
+			//Quadrant 4
+			for(int y=4; y>-1;y--) {
+				for(int x=0; x<5;x++) {
+					MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y-y));				
+					Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y-y);
+					
+						if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+						
+						if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+								//keyTile.add(scanCoo);
+								//System.out.println("KEY TILE"+keyTile);
+							keyTile.add(scanCoo);
+							//	System.out.println("KEY TILE"+keyTile);
+								int keyNum = getKeyNum(currentView, scanCoo);
+								TestTileCollector keyTC = new TestTileCollector(scanCoo,keyNum);
+								keyCollectorArrayList.add(keyTC);
+								System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
+							}
+							
+						
+					}
+					
+					
+					if(landOnHealTile(currentView,scanCoo)) {
+						if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+							healTile.add(scanCoo);
+							//System.out.println("Heal TILE"+healTile);
+						}
+						
+					}
+					MapTile.Type scanType = scanTile.getType();
+					TestTileCollector tctile = new TestTileCollector(scanCoo,scanType);			
+					tileCollectorArrayList.add(tctile);
+							
+							
+							
+										}
+								}	
+			
+			
+			}
+		public boolean haveAllKeyLocation() {
+			if (keyCollectorArrayList.size() == totalKey-1 )
+			{	
+				return true;
+			}
+				return false;		
 		}
 }
