@@ -40,8 +40,8 @@ public class MyAIController extends CarController{
 		float currentHealth = getHealth();
 		int i = 0;
 		int s = 0;
-		int e =13;
-		int t= 7;
+		int e;
+		int t;
 //		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 		private boolean isTurningLeft = false;
@@ -102,10 +102,12 @@ public class MyAIController extends CarController{
 			}
 			if(once == 0) {
 				System.out.println("just once");
-				locationShouldVisit(shouldVisitedTile);
 				startPosition = currentPosition;
+				locationShouldVisit(shouldVisitedTile,startPosition);
+				
 				System.out.println("startPosition"+ startPosition);
 				once = 1;
+				destination = startPosition;
 				
 			}
 			
@@ -135,13 +137,20 @@ public class MyAIController extends CarController{
 					System.out.println(updateCount);
 					
 					System.out.println("SVT s"+shouldVisitedTile.get(s));
+					destination = new Coordinate(e,t);
+					
+					
+					if(inRangeOfTwo(currentPosition, destination) || i==0) {
+						
+						e=shouldVisitedTile.get(i).x;
+						t=shouldVisitedTile.get(i).y;
+						i++;
+						
+					}
 					
 					testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, e, t);
-					destination = new Coordinate(e,t);
-					if(inRangeOfTwo(currentPosition, destination)) {
-						e=2;
-						t=3;
-					}
+					
+					
 					System.out.println("X"+e);
 					System.out.println("Y"+t);
 					/*
@@ -731,7 +740,7 @@ public class MyAIController extends CarController{
 				}				
 			}return false;
 		}
-		public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV) {
+		public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV, Coordinate startpoint) {
 			
 			int totalSV = (int) Math.ceil(totalTile/91);
 			//System.out.println("totalSV = "+totalSV );
@@ -745,7 +754,7 @@ public class MyAIController extends CarController{
 					//System.out.println("Coordinate["+x+","+y+"]");
 					Coordinate coordinate = new Coordinate(x,y);
 					listSV.add(coordinate);
-					
+					listSV.add(startpoint);
 				}
 				
 				//Coordinate destination = new Coordinate(4,mapHeight-4*(i));
