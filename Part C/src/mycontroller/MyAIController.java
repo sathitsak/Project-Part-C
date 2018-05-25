@@ -36,13 +36,17 @@ public class MyAIController extends CarController{
 		int mapWidth = World.MAP_WIDTH;
 		int totalTile = mapHeight*mapWidth;
 		ArrayList<Coordinate> shouldVisitedTile = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> mustVisitKeyTile = new ArrayList<Coordinate>();
 		ArrayList<Coordinate> keyTile = new ArrayList<Coordinate>(); //NOT Use will be remove soon
 		ArrayList<Coordinate> healTile = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> finishTile = new ArrayList<Coordinate>();
 		ArrayList<TileCollector> tileCollectorArrayList = new ArrayList<TileCollector>();
 		ArrayList<TileCollector> keyCollectorArrayList = new ArrayList<TileCollector>();
 		float currentHealth = getHealth();
 		int i = 0;
+		int k = 0;
 		int s = 0;
+		int l=0;
 		int e;
 		int t;
 //		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
@@ -142,16 +146,27 @@ public class MyAIController extends CarController{
 					System.out.println("SVT s"+shouldVisitedTile.get(s));
 					destination = new Coordinate(e,t);
 					recordTileTypeAroundTheCar(currentView,currentPosition);
-					if(haveAllKeyLocation() == true) {
+					if(haveAllKeyLocation() == true && k==0 && !finishTile.isEmpty() && !healTile.isEmpty()) {
 						System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
 						sortTileList(keyCollectorArrayList);
-						
+						goToKeyLocation(mustVisitKeyTile,keyCollectorArrayList,startPosition);
+						k++;
 					}
 					if(haveOneHealTile() == true) {
 						System.out.println("YOU GOT ONE HEAL LOCATION!!!!!!!");			
 						
 					}
-					if(inRangeOfTwo(currentPosition, destination) || i==0) {
+					if(k==1) {
+						System.out.println("START COLLECT THE KEY");	
+						if(inRangeOfTwo(currentPosition, destination)|| l==0 ) {
+							e=mustVisitKeyTile.get(l).x;
+							t=mustVisitKeyTile.get(l).y;
+							l++;
+						}
+						
+						
+					}
+					else if(inRangeOfTwo(currentPosition, destination) || i==0) {
 						
 						e=shouldVisitedTile.get(i).x;
 						t=shouldVisitedTile.get(i).y;
@@ -164,44 +179,9 @@ public class MyAIController extends CarController{
 					
 					System.out.println("X"+e);
 					System.out.println("Y"+t);
-					/*
-					if(updateCount %500 ==0) {
-						
-						Coordinate destination = new Coordinate(destinationX,destinationY);
-						System.out.println("Current Destination is"+destination);
-						if(inRangeOfFour(currentPosition,destination)) {
-							System.out.println("inrange");
-							 destination = new Coordinate(destinationX,destinationY);
-							
-							 destinationX = ThreadLocalRandom.current().nextInt(0, World.MAP_WIDTH-1);
-							 destinationY = ThreadLocalRandom.current().nextInt(0, World.MAP_HEIGHT-1);
-							while(isWall(destination) ) {
-								
-								System.out.println("Destination is wall");
-								
-								if(currentPosition.x-4<0 || currentPosition.y-4<0) {
-									destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
-									destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y-4, currentPosition.y+4);
-								}else {
-									System.out.println("Random Coordinate X or Y is < 4 " );
-									destinationX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
-									destinationY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);							 
-								}
-								 destination = new Coordinate(destinationX,destinationY);
-								 
-								 
-							}
-								
-						}
-						
-						System.out.println("current position is"+ currentPosition);
-						System.out.println("current destination is"+ destination);
-						testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, destination.x , destination.y );
-					}
-					*/
+					
 						updateCount++;
-//					FinishPath = false;
-//				}
+				
 						if(getSpeed()<=0 && updateCount %200 ==0) {
 							System.out.println("stuck in the wall");
 							destination = new Coordinate(2,3);
@@ -325,6 +305,7 @@ public class MyAIController extends CarController{
 				//Increment index and brake if at current tile
 				if(j < testPath.getLength() && currentPosition.x == testPath.getX(j) && currentPosition.y == testPath.getY(j)) {
 					applyBrake();
+				//	applyForwardAcceleration();
 					j++;
 				}
 				
@@ -555,6 +536,16 @@ public class MyAIController extends CarController{
 			}return false;
 		}
 		
+public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			
+			MapTile currentTile = currentView.get(currentPosition);
+			MapTile.Type currentType = currentTile.getType();
+			if(MapTile.Type.FINISH == currentType){
+				System.out.println("You found finish tile");
+					return true;
+				
+			}return false;
+		}
 		//Print list of tiles
 		public void printMaze() {
 			Iterator it = this.maze.entrySet().iterator();
@@ -656,36 +647,7 @@ public class MyAIController extends CarController{
 			Coordinate coord = new Coordinate(newX, newY);
 			return coord;
 		}
-		public Coordinate RandomCo(Coordinate currentPosition) {
-			
-			
-			int randomNumX = 0;
-			int randomNumY = 0;
-			Coordinate coord = currentPosition;
-			
-						randomNumX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
-						randomNumY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
-					while(!isWall(coord)) {
-						if(currentPosition.x-4<0 || currentPosition.y-4<0) {
-							 randomNumX = ThreadLocalRandom.current().nextInt(currentPosition.x-4, currentPosition.x+4);
-							 randomNumY = ThreadLocalRandom.current().nextInt(currentPosition.y-4, currentPosition.y+4);
-						}else {
-							System.out.println("Random Coordinate X or Y is < 4 " );
-							randomNumX = ThreadLocalRandom.current().nextInt(currentPosition.x, currentPosition.x+4);
-							 randomNumY = ThreadLocalRandom.current().nextInt(currentPosition.y, currentPosition.y+4);
-							
-						
-					
-					  coord = new Coordinate(randomNumX, randomNumY);
-					}
-				}
-			
-			
-				
-				System.out.println("Random Coordinate X is"+randomNumX+"Y = "+randomNumY );
-				return coord;
-			
-		}
+		
 		public boolean isWall(Coordinate coordinate) {
 			HashMap<Coordinate, MapTile> currentView = getView();
 			MapTile currentTile = currentView.get(coordinate);
@@ -700,53 +662,11 @@ public class MyAIController extends CarController{
 			
 		}
 		
-		public boolean inRangeOfDes(Coordinate current,Coordinate destination) {
-			if (current.x == destination.x-1) {
-				if (current.y == destination.y-1) {
-					return true;
-				}
-				if (current.y == destination.y) {
-					return true;
-				}
-				if (current.y == destination.y+1) {
-					return true;
-				}
-			}
-			if (current.x == destination.x) {
-				if (current.y == destination.y-1) {
-					return true;
-				}
-				if (current.y == destination.y) {
-					return true;
-				}
-				if (current.y == destination.y+1) {
-					return true;
-				}
-			}
-			if (current.x == destination.x+1) {
-				if (current.y == destination.y-1) {
-					return true;
-				}
-				if (current.y == destination.y) {
-					return true;
-				}
-				if (current.y == destination.y+1) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
-		public boolean inRangeOfFour(Coordinate current,Coordinate destination) {
-			if (current.x > destination.x-4 && current.x < destination.x+4  ) {
-				if (current.y > destination.y-4 && current.y < destination.y+4 ) {
-					return true;
-				}				
-			}return false;
-		}
+		
+		
 		public boolean inRangeOfTwo(Coordinate current,Coordinate destination) {
-			if (current.x > destination.x-2 && current.x < destination.x+2  ) {
-				if (current.y > destination.y-2 && current.y < destination.y+2 ) {
+			if (current.x == destination.x  ) {
+				if (current.y == destination.y ) {
 					return true;
 				}				
 			}return false;
@@ -774,17 +694,25 @@ public class MyAIController extends CarController{
 			return listSV;
 			
 		}
-		public ArrayList<Coordinate> goToKeyLocation(ArrayList<Coordinate> listSV, Coordinate startpoint) {
+		public ArrayList<Coordinate> goToKeyLocation(ArrayList<Coordinate> listSV,ArrayList<TileCollector> keylo, Coordinate startpoint) {
 			
-			
-			
-					//listSV.add(coordinate);
-					listSV.add(startpoint);
+			int size =keylo.size();
+			// Add key to arraylist
+			for (int i = 0; i <size; i++) {
 				
+				
+					listSV.add(startpoint);
+					Coordinate coordinate = new Coordinate(keylo.get(i).getCoordinate().x,keylo.get(i).getCoordinate().y);
+					listSV.add(coordinate);
+					
+					
+			}
+			// Add finishTile to Arraylist
+			for(int i = 0; i <finishTile.size(); i++) {
+				Coordinate goal = finishTile.get(0);	
+				listSV.add(goal);
+			}
 			
-				//Coordinate destination = new Coordinate(4,mapHeight-4*(i));
-			
-		//	System.out.println("LocationSV end");
 			return listSV;
 			
 		}
@@ -844,7 +772,10 @@ public class MyAIController extends CarController{
 								}
 								
 							}
-			// Record every Tile				
+			// Record every Tile	
+							if(landOnFinishTile(currentView,scanCoo)) {
+								finishTile.add(scanCoo);
+							}
 							MapTile.Type scanType = scanTile.getType();
 							TileCollector tctile = new TileCollector(scanCoo,scanType);
 							
@@ -881,7 +812,9 @@ public class MyAIController extends CarController{
 						}
 						
 					}
-					
+					if(landOnFinishTile(currentView,scanCoo)) {
+						finishTile.add(scanCoo);
+					}
 					MapTile.Type scanType = scanTile.getType();
 					TileCollector tctile = new TileCollector(scanCoo,scanType);
 					
@@ -921,7 +854,9 @@ public class MyAIController extends CarController{
 								}
 								
 							}
-							
+							if(landOnFinishTile(currentView,scanCoo)) {
+								finishTile.add(scanCoo);
+							}
 							MapTile.Type scanType = scanTile.getType();
 							TileCollector tctile = new TileCollector(scanCoo,scanType);
 							//System.out.println("tile coordinate"+tctile.getCoordinate()+"tile type"+tctile.getType());
@@ -960,6 +895,9 @@ public class MyAIController extends CarController{
 							//System.out.println("Heal TILE"+healTile);
 						}
 						
+					}
+					if(landOnFinishTile(currentView,scanCoo)) {
+						finishTile.add(scanCoo);
 					}
 					MapTile.Type scanType = scanTile.getType();
 					TileCollector tctile = new TileCollector(scanCoo,scanType);			
