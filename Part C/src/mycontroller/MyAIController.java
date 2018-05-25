@@ -538,7 +538,7 @@ public class MyAIController extends CarController{
 			}return false;
 		}
 		
-public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+		public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 			
 			MapTile currentTile = currentView.get(currentPosition);
 			MapTile.Type currentType = currentTile.getType();
@@ -649,30 +649,28 @@ public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordi
 			Coordinate coord = new Coordinate(newX, newY);
 			return coord;
 		}
-		
+		// Check if the coordinate give is WALL or not
 		public boolean isWall(Coordinate coordinate) {
 			HashMap<Coordinate, MapTile> currentView = getView();
 			MapTile currentTile = currentView.get(coordinate);
 			MapTile.Type currentType = currentTile.getType();
-			if(MapTile.Type.WALL == currentType){
-				
+			if(MapTile.Type.WALL == currentType){			
 				return true;
 			}
-			
-			
-			return false;
-			
-		}
+				return false;			
+			}
 		
 		
-		
-		public boolean inRangeOfTwo(Coordinate current,Coordinate destination) {
-			if (current.x < destination.x+2 && current.x > destination.x-2 ) {
-				if (current.y < destination.y+2 && current.y > destination.y-2 ) {
+		// Check if the current coordinate is in range of 4*4(91 tiles) of the destination coordinate or not.
+		public boolean inRangeOfFour(Coordinate current,Coordinate destination) {
+			if (current.x < destination.x+4 && current.x > destination.x-4 ) {
+				if (current.y < destination.y+4 && current.y > destination.y-4 ) {
 					return true;
 				}				
 			}return false;
 		}
+		
+		// Check if the car had reached the destination or not
 		public boolean inPosition(Coordinate current,Coordinate destination) {
 			if (current.x == destination.x  ) {
 				if (current.y == destination.y ) {
@@ -680,6 +678,7 @@ public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordi
 				}				
 			}return false;
 		}
+		
 		//This how we check which point the car should visit to get every tile information
 		public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV, Coordinate startpoint) {
 			
@@ -695,27 +694,22 @@ public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordi
 					
 					Coordinate coordinate = new Coordinate(x,y);
 					listSV.add(coordinate);
-					listSV.add(startpoint);
+					//listSV.add(startpoint);
 				}
 				
-				
 			}
-		
-			return listSV;
-			
+					return listSV;			
 		}
+		
+		//After the car got all the key location, we create new arraylist of coordinate that contain key and finish location
 		public ArrayList<Coordinate> goToKeyLocation(ArrayList<Coordinate> listSV,ArrayList<TileCollector> keylo, Coordinate startpoint) {
 			
 			int size =keylo.size();
 			// Add key to arraylist
-			for (int i = 0; i <size; i++) {
-				
-				
-					listSV.add(startpoint);
+			for (int i = 0; i <size; i++) {								
+					//listSV.add(startpoint);
 					Coordinate coordinate = new Coordinate(keylo.get(i).getCoordinate().x,keylo.get(i).getCoordinate().y);
-					listSV.add(coordinate);
-					
-					
+					listSV.add(coordinate);						
 			}
 			// Add finishTile to Arraylist
 			for(int i = 0; i <finishTile.size(); i++) {
@@ -726,31 +720,24 @@ public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordi
 			return listSV;
 			
 		}
+		
+		//Sort key in Arraylist to be in order
 		public ArrayList<TileCollector> sortTileList( ArrayList<TileCollector> listSV) {
 	
 			int size =listSV.size();
 			for (int i = 0; i < size-1; i++) {
 
                 if (listSV.get(i).getKeyNum() < listSV.get(i+1).getKeyNum()) {
-
-
-                    TileCollector temp1= listSV.get(i + 1);
+                   TileCollector temp1= listSV.get(i + 1);
                     TileCollector temp2= listSV.get(i);
                     listSV.set(i,temp1);
                     listSV.set(i+1,temp2);
-
                 }
-            }
-			//listSV.add(coordinate);
-				
-
-
-		//Coordinate destination = new Coordinate(4,mapHeight-4*(i));
-
-				//	System.out.println("LocationSV end");
+            }			
 				return listSV;
-
-}
+		}
+		
+		// Record 100 Tiles around the car
 		public void recordTileTypeAroundTheCar(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 			//Quadrant 1
 			//Scan every possible tile in Q1 and collect their Type and location to TileCollector
