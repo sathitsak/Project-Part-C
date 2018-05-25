@@ -1,3 +1,5 @@
+//Heal Tile at test map is 35,19
+
 package mycontroller;
 
 import controller.CarController;
@@ -60,7 +62,7 @@ public class MyAIController extends CarController{
 		PathFinder finder;
 		
 		// Car Speed to move at
-		private final double CAR_SPEED = 1.25;
+		private final double CAR_SPEED = 10;
 		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
