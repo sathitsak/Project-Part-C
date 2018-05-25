@@ -158,7 +158,7 @@ public class MyAIController extends CarController{
 					}
 					if(k==1) {
 						System.out.println("START COLLECT THE KEY");	
-						if(inRangeOfTwo(currentPosition, destination)|| l==0 ) {
+						if(inPosition(currentPosition, destination)|| l==0 ) {
 							e=mustVisitKeyTile.get(l).x;
 							t=mustVisitKeyTile.get(l).y;
 							l++;
@@ -166,7 +166,7 @@ public class MyAIController extends CarController{
 						
 						
 					}
-					else if(inRangeOfTwo(currentPosition, destination) || i==0) {
+					else if(inPosition(currentPosition, destination) || i==0) {
 						
 						e=shouldVisitedTile.get(i).x;
 						t=shouldVisitedTile.get(i).y;
@@ -665,32 +665,40 @@ public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordi
 		
 		
 		public boolean inRangeOfTwo(Coordinate current,Coordinate destination) {
+			if (current.x < destination.x+2 && current.x > destination.x-2 ) {
+				if (current.y < destination.y+2 && current.y > destination.y-2 ) {
+					return true;
+				}				
+			}return false;
+		}
+		public boolean inPosition(Coordinate current,Coordinate destination) {
 			if (current.x == destination.x  ) {
 				if (current.y == destination.y ) {
 					return true;
 				}				
 			}return false;
 		}
+		//This how we check which point the car should visit to get every tile information
 		public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV, Coordinate startpoint) {
 			
 			int totalSV = (int) Math.ceil(totalTile/91);
-			//System.out.println("totalSV = "+totalSV );
+			
 			int totalX = (int) Math.ceil((mapWidth-4)/9)+1;
 			int totalY = (int) Math.ceil((mapHeight-4)/9)+1;
-			//System.out.println("LocationSV start" +totalX+totalY);
+			
 			for(int i=0; i<totalY ; i++) {
 				for(int j=0; j<totalX ; j++) {
 					int x = 4+9*(j);
 					int y = mapHeight-4-9*(i);
-					//System.out.println("Coordinate["+x+","+y+"]");
+					
 					Coordinate coordinate = new Coordinate(x,y);
 					listSV.add(coordinate);
 					listSV.add(startpoint);
 				}
 				
-				//Coordinate destination = new Coordinate(4,mapHeight-4*(i));
+				
 			}
-		//	System.out.println("LocationSV end");
+		
 			return listSV;
 			
 		}
