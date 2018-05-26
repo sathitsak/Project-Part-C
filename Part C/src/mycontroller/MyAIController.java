@@ -22,7 +22,7 @@ import world.WorldSpatial;
 public class MyAIController extends CarController{
 	// How many minimum units the wall is away from the player.
 		private int wallSensitivity = 2;
-		
+		private int lavaSensitivity = 2;
 		Coordinate startPosition =  new Coordinate(0, 0);
 		HashMap<Coordinate, MapTile> maze = new HashMap<Coordinate, MapTile>();
 		HashMap<Coordinate, Integer> KeyMap = new HashMap<Coordinate, Integer>();
@@ -51,6 +51,10 @@ public class MyAIController extends CarController{
 		int l=0;
 		int e;
 		int t;
+		int tempx;
+		int tempy;
+		int healSwitch=0;
+		int healTileSwitch=0;
 //		private boolean isFollowingWall = false; // This is initialized when the car sticks to a wall.
 		private WorldSpatial.RelativeDirection lastTurnDirection = null; // Shows the last turn direction the car takes.
 		private boolean isTurningLeft = false;
@@ -62,7 +66,7 @@ public class MyAIController extends CarController{
 		PathFinder finder;
 		
 		// Car Speed to move at
-		private final double CAR_SPEED = 3; // 4.5 or >5 is good
+		private  double CAR_SPEED = 3.1; //3.1 4.5 or >5 is good
 		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
@@ -119,7 +123,12 @@ public class MyAIController extends CarController{
 				destination = startPosition;
 				
 			}
+			System.out.println("car speed = " +CAR_SPEED);
 			
+			
+			 
+					
+					
 			
 			
 			
@@ -147,39 +156,81 @@ public class MyAIController extends CarController{
 					
 					//System.out.println("SVT s"+shouldVisitedTile.get(s));
 					destination = new Coordinate(e,t);
+					System.out.println("X"+e+"Y"+t);
 					recordTileTypeAroundTheCar(currentView,currentPosition);
+					System.out.println("HealWitch"+healSwitch);
+					
+					if(getHealth()<60 && healSwitch==0) {
+						
+						 tempx = e;
+						 tempy = t;
+						e= nearestTileInList(currentPosition,healTile).x;
+						t= nearestTileInList(currentPosition,healTile).y;
+						System.out.println("tempx = "+tempx+ "tempy = "+tempy);
+						healSwitch =1;
+						healTileSwitch =1;
+					}
+					
+					if(updateCount %300 ==0&& healSwitch==1) {
+						e= nearestTileInList(currentPosition,healTile).x;
+						t= nearestTileInList(currentPosition,healTile).y;
+					}
+					
+					if(landOnHealTile(currentView,currentPosition)&& healSwitch==1) {
+						
+						e= currentPosition.x;
+						t= currentPosition.y;
+					}
+					
+					if(getHealth()>99 && healSwitch==1) {
+						
+						System.out.println("Fully heal");
+						System.out.println("tempx = "+tempx+ "tempy = "+tempy);
+						e= tempx;
+						t= tempy;
+						healSwitch =0;
+					}
+					
+					
+					else if(healSwitch==0){
+						
+						
+					
 					if(haveAllKeyLocation() == true && k==0 && !finishTile.isEmpty() && !healTile.isEmpty()) {
 						//System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
 						sortTileList(keyCollectorArrayList);
 						goToKeyLocation(mustVisitKeyTile,keyCollectorArrayList,startPosition);
 						k++;
 					}
-					if(haveOneHealTile() == true) {
-						//System.out.println("YOU GOT ONE HEAL LOCATION!!!!!!!");			
-						
-					}
+					
 					
 						//System.out.println("START COLLECT THE KEY");	
-						if(inPosition(currentPosition, destination)&& !mustVisitKeyTile.isEmpty() ) {
+					if(inPosition(currentPosition, destination)&& !mustVisitKeyTile.isEmpty() ) {
 							e=mustVisitKeyTile.get(0).x;
 							t=mustVisitKeyTile.get(0).y;
 							mustVisitKeyTile.remove(0);
-						}
+					}
 						
 						
 					
-					else if(inRangeOfFour(currentPosition, destination)|| i==0) {
-						System.out.println("in RangeOfFour");
+					else if(mustVisitKeyTile.isEmpty()) {
+						
+						
+						if(inRangeOfA(currentPosition, destination,4)|| i==0 ) {
+						
 						if(isWall(destination)) {
-							
+							e=shouldVisitedTile.get(i).x;
+							t=shouldVisitedTile.get(i).y-2;
 						}
-						if(inPosition(currentPosition, destination) || i==0) {
+						if(inPosition(currentPosition, destination) || i==0 ) {
 							
 							e=shouldVisitedTile.get(i).x;
 							t=shouldVisitedTile.get(i).y;
 							i++;
 					}				
 					}
+						
+						}}
 					
 					testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, e, t);
 					
@@ -189,14 +240,14 @@ public class MyAIController extends CarController{
 					
 						updateCount++;
 				
-						if(getSpeed()<=0 && updateCount %60 ==0) {
+						if(getSpeed()<=0 && updateCount %20 ==0) {
 							//System.out.println("stuck in the wall");
 							destination = new Coordinate(2,3);
 							
 							  
 							applyReverseAcceleration();
 							
-						  reverseCount=50;
+						  reverseCount=15;//10
 						}
 						if(reverseCount>0) {
 							//System.out.println("Enter reverse count");
@@ -234,7 +285,7 @@ public class MyAIController extends CarController{
 					
 					//Create next step for car movement
 					Coordinate nextStep = FollowStep(testPath, j, currentPosition);
-					System.out.println(FollowStep(testPath, j, currentPosition));
+			//		System.out.println(FollowStep(testPath, j, currentPosition));
 					
 					/////////////////////////////////Start driving to path//////////////////////////////////////////////////////////////////
 					
@@ -312,6 +363,7 @@ public class MyAIController extends CarController{
 				//Increment index and brake if at current tile
 				if(j < testPath.getLength() && currentPosition.x == testPath.getX(j) && currentPosition.y == testPath.getY(j)) {
 					applyBrake();
+					
 				//	applyForwardAcceleration();
 					j++;
 				}
@@ -323,7 +375,7 @@ public class MyAIController extends CarController{
 					FinishPath = true;
 				}
 							
-				System.out.println("KICKED");
+			//	System.out.println("KICKED");
 			}
 
 		}
@@ -542,13 +594,24 @@ public class MyAIController extends CarController{
 				}
 			}return false;
 		}
-		
+		public boolean landOnLavaTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
+			
+			MapTile currentTile = currentView.get(currentPosition);
+			MapTile.Type currentType = currentTile.getType();
+			if(MapTile.Type.TRAP == currentType){
+				
+				if(((TrapTile) currentTile).getTrap()=="lava"){
+					
+					return true;
+				}
+			}return false;
+		}
 		public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 			
 			MapTile currentTile = currentView.get(currentPosition);
 			MapTile.Type currentType = currentTile.getType();
 			if(MapTile.Type.FINISH == currentType){
-				System.out.println("You found finish tile");
+			//	System.out.println("You found finish tile");
 					return true;
 				
 			}return false;
@@ -560,19 +623,19 @@ public class MyAIController extends CarController{
 			while(it.hasNext()) {
 				Map.Entry tile = (Map.Entry)it.next();
 				MapTile mt = (MapTile) tile.getValue();
-				System.out.print("Coords: " + (Coordinate)tile.getKey() +" , TileType: " + mt.getType() + " ");
+			//	System.out.print("Coords: " + (Coordinate)tile.getKey() +" , TileType: " + mt.getType() + " ");
 				if(mt.getType().toString().equals("TRAP")) {
 					TrapTile tt = (TrapTile) mt;
 					tt.getTrap();
-					System.out.print("Trap type: " + tt.getTrap() + " ");
+				//	System.out.print("Trap type: " + tt.getTrap() + " ");
 					if(tt.getTrap().equals("lava")) {
 						LavaTrap lt = (LavaTrap) tt;
 						if(lt.getKey() != 0) {
-							System.out.print("Contains Key: " + lt.getKey());
+					//		System.out.print("Contains Key: " + lt.getKey());
 						}
 					}
 				}
-				System.out.print(" LENGTH:" + maze.size() +"\n");
+			//	System.out.print(" LENGTH:" + maze.size() +"\n");
 				
 //				it.remove();
 			}
@@ -667,9 +730,9 @@ public class MyAIController extends CarController{
 		
 		
 		// Check if the current coordinate is in range of 4*4(91 tiles) of the destination coordinate or not.
-		public boolean inRangeOfFour(Coordinate current,Coordinate destination) {
-			if (current.x < destination.x+4 && current.x > destination.x-4 ) {
-				if (current.y < destination.y+4 && current.y > destination.y-4 ) {
+		public boolean inRangeOfA(Coordinate current,Coordinate destination, int a) {
+			if (current.x < destination.x+a && current.x > destination.x-a ) {
+				if (current.y < destination.y+a && current.y > destination.y-a ) {
 					return true;
 				}				
 			}return false;
@@ -768,7 +831,7 @@ public class MyAIController extends CarController{
 										int keyNum = getKeyNum(currentView, scanCoo);
 										TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 										keyCollectorArrayList.add(keyTC);
-										System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
+								//		System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 										
 									}
 									
@@ -810,7 +873,7 @@ public class MyAIController extends CarController{
 								int keyNum = getKeyNum(currentView, scanCoo);
 								TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 								keyCollectorArrayList.add(keyTC);
-								System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
+							//	System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 							}
 							
 						
@@ -851,7 +914,7 @@ public class MyAIController extends CarController{
 										int keyNum = getKeyNum(currentView, scanCoo);
 										TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 										keyCollectorArrayList.add(keyTC);
-										System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
+									//	System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
 									}
 									
 								
@@ -921,6 +984,26 @@ public class MyAIController extends CarController{
 			
 			
 			}
+		public Coordinate  nearestTileInList(Coordinate current,ArrayList<Coordinate> list) {
+			int Xc = current.x;
+			int Yc = current.y;
+			double leastDistance = 10000;
+			double distance;
+			Coordinate nearest = new Coordinate(0, 0);
+			for(int i = 0; i<list.size();i++) {
+				int Xd = list.get(i).x;
+				int Yd = list.get(i).y;
+				
+				 distance= (Math.sqrt((((Xc-Xd)^2))+(((Yc-Yd)^2))));
+				if(distance<leastDistance) {
+					leastDistance = distance;
+					nearest = list.get(i);
+				}				
+			}
+			
+			return nearest;
+			
+		}
 		
 		//Check if car have every tile with key location
 		public boolean haveAllKeyLocation() {
@@ -929,5 +1012,56 @@ public class MyAIController extends CarController{
 				return true;
 			}
 				return false;		
+		}
+		public boolean checkEastLava(HashMap<Coordinate, MapTile> currentView){
+			// Check tiles to my right
+			Coordinate currentPosition = new Coordinate(getPosition());
+			for(int i = 0; i <= lavaSensitivity; i++){
+				MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
+				if(MapTile.Type.TRAP == tile.getType()){
+				if(((TrapTile) tile).getTrap()=="lava"){
+					return true;
+				}}
+			}
+			return false;
+		}
+		
+		public boolean checkWestLava(HashMap<Coordinate,MapTile> currentView){
+			// Check tiles to my left
+			Coordinate currentPosition = new Coordinate(getPosition());
+			for(int i = 0; i <= lavaSensitivity; i++){
+				MapTile tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
+				if(MapTile.Type.TRAP == tile.getType()){
+				if(((TrapTile) tile).getTrap()=="lava"){
+					return true;
+				}}
+			}
+			return false;
+		}
+		
+		public boolean checkNorthLava(HashMap<Coordinate,MapTile> currentView){
+			// Check tiles to towards the top
+			Coordinate currentPosition = new Coordinate(getPosition());
+			for(int i = 0; i <= lavaSensitivity; i++){
+				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
+				if(MapTile.Type.TRAP == tile.getType()){
+					if(((TrapTile) tile).getTrap()=="lava"){
+					return true;
+				}
+			}}
+			return false;
+		}
+		
+		public boolean checkSouthLava(HashMap<Coordinate,MapTile> currentView){
+			// Check tiles towards the bottom
+			Coordinate currentPosition = new Coordinate(getPosition());
+			for(int i = 0; i <= lavaSensitivity; i++){
+				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
+				if(MapTile.Type.TRAP == tile.getType()){
+				if(((TrapTile) tile).getTrap()=="lava"){
+					return true;
+				}}
+			}
+			return false;
 		}
 }
