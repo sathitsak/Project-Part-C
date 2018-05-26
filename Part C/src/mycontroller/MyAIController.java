@@ -194,51 +194,50 @@ public class MyAIController extends CarController{
 					else if(healSwitch==0){
 						
 						
-					// If We found all the key location, one heal tile, and finish tile, the car is ready to escape
-					
-					if(haveAllKeyLocation() == true && k==0 && !finishTile.isEmpty() && !healTile.isEmpty()) {
-						//Sort key coordinate in arraylist by key number from large to small
-						sortTileList(keyCollectorArrayList);
+						// If We found all the key location, one heal tile, and finish tile, the car is ready to escape					
+						if(haveAllKeyLocation() == true && k==0 && !finishTile.isEmpty() && !healTile.isEmpty()) {
+							//Sort key coordinate in arraylist by key number from large to small
+							sortTileList(keyCollectorArrayList);
 						
-						// The key and finish tile will be combine into one Arraylist
-						prepareEscapePlan(mustVisitKeyTile,keyCollectorArrayList);
-						
-						// We also want to run this just once by set k=1 
-						k++;
+							// The key and finish tile will be combine into one Arraylist
+							prepareEscapePlan(mustVisitKeyTile,keyCollectorArrayList);
+							
+							// We also want to run this just once by set k=1 
+							k++;
 					}
 					
 					
 					// This wil start the escape plan
-					if(inPosition(currentPosition, destination)&& !mustVisitKeyTile.isEmpty() ) {
-						destinationX=mustVisitKeyTile.get(0).x;
-						destinationY=mustVisitKeyTile.get(0).y;
+						if(inPosition(currentPosition, destination)&& !mustVisitKeyTile.isEmpty() ) {
+							destinationX=mustVisitKeyTile.get(0).x;
+							destinationY=mustVisitKeyTile.get(0).y;
 							mustVisitKeyTile.remove(0);
 					}
 						
 						
 					// If we don't have escape plan yet
-					else if(mustVisitKeyTile.isEmpty()) {
+						else if(mustVisitKeyTile.isEmpty()) {
 						
 						// If shouldVisitLocation is wall, we will shift it
-						if(inRangeOfA(currentPosition, destination,4) ) {
+							if(inRangeOfA(currentPosition, destination,4) ) {
 						
-							if(isWall(destination)) {
-								destinationX=shouldVisitedTile.get(i).x;
-								destinationY=shouldVisitedTile.get(i).y-2;
-							}
+								if(isWall(destination)) {
+									destinationX=shouldVisitedTile.get(i).x;
+									destinationY=shouldVisitedTile.get(i).y-2;
+								}
 							
 							// This is to check if Car reach should visit location or not
 							// i is index for getting the location from list
-							if(inPosition(currentPosition, destination) || i==0 ) {
-							
-								destinationX=shouldVisitedTile.get(i).x;
-								destinationY=shouldVisitedTile.get(i).y;
-								i++;
-					}				
+								if(inPosition(currentPosition, destination) || i==0 ) {							
+									destinationX=shouldVisitedTile.get(i).x;
+									destinationY=shouldVisitedTile.get(i).y;
+									i++;
+								}				
+							}			
+						}
 					}
-						
-						}}
 					
+					//Set the car route here
 					testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, destinationX, destinationY);
 					
 					
@@ -246,33 +245,32 @@ public class MyAIController extends CarController{
 					//System.out.println("Y"+t);
 					
 						updateCount++;
-				
-						if(getSpeed()<=0 && updateCount %20 ==0) {
-							//System.out.println("stuck in the wall");
-							destination = new Coordinate(2,3);
-							
-							  
-							applyReverseAcceleration();
-							
+					//If the car crash
+					if(getSpeed()<=0 && updateCount %20 ==0) {
+						//apply reverse	  
+						applyReverseAcceleration();
+						//set reverse count to apply constant ReverseAcceleration	
 						  reverseCount=15;//10
 						}
-						if(reverseCount>0) {
-							//System.out.println("Enter reverse count");
-							 applyReverseAcceleration();
-							Coordinate southwall = new Coordinate(currentPosition.x,currentPosition.y-1);
-							if(isWall(southwall )) {
-								applyLeftTurn(getOrientation(),delta); 	
-							}else
+					
+					if(reverseCount>0) {
 							
-							 applyRightTurn(getOrientation(),delta); 
-							 reverseCount--;
-							 return;
+						applyReverseAcceleration();
+						//Check south wall
+						Coordinate southwall = new Coordinate(currentPosition.x,currentPosition.y-1);
+						// if there is south wall turn left
+						if(isWall(southwall )) {
+							applyLeftTurn(getOrientation(),delta); 	
+						}else		
+							applyRightTurn(getOrientation(),delta); 
+							reverseCount--;
+							return;
 						}
 
 					//	System.out.println("Current destination X="+e +" Y = " +t);
 
 				//As long as the path exists
-			if(testPath != null) {
+					if(testPath != null) {
 												
 //				//Print suggested path
 //				int i = 0;
@@ -552,6 +550,7 @@ public class MyAIController extends CarController{
 			return false;
 		}
 		
+		// If have at least one heal tile in memory return true
 		public boolean haveOneHealTile() {
 			if (HealMap.size()>0) {
 				return true;
@@ -559,10 +558,8 @@ public class MyAIController extends CarController{
 			return false;
 		}
 		
-		public void addtilePosition(Coordinate currentPosition, ArrayList<Coordinate> collection) {
-			collection.add(currentPosition);
-		}
 		
+		//Check if Coordinate is on lava tile with a key inside
 		public boolean landOnLavaTileWithKey(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 			
 			MapTile currentTile = currentView.get(currentPosition);
@@ -581,47 +578,34 @@ public class MyAIController extends CarController{
 			}return false;
 		}
 		
+		//Get key number from lava tile with a key inside
 		public int getKeyNum(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 			MapTile currentTile = currentView.get(currentPosition);	
 			TrapTile a = (TrapTile) currentTile;
-			LavaTrap b = (LavaTrap) a;
-				
-			return b.getKey();
-			
+			LavaTrap b = (LavaTrap) a;				
+			return b.getKey();			
 		}
-		public boolean landOnHealTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
-			
+		
+		//Check if Coordinate is on heal tile 
+		public boolean landOnHealTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {			
 			MapTile currentTile = currentView.get(currentPosition);
 			MapTile.Type currentType = currentTile.getType();
-			if(MapTile.Type.TRAP == currentType){
-				
-				if(((TrapTile) currentTile).getTrap()=="health"){
-					
+			if(MapTile.Type.TRAP == currentType){				
+				if(((TrapTile) currentTile).getTrap()=="health"){				
 					return true;
 				}
 			}return false;
 		}
-		public boolean landOnLavaTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
-			
-			MapTile currentTile = currentView.get(currentPosition);
-			MapTile.Type currentType = currentTile.getType();
-			if(MapTile.Type.TRAP == currentType){
-				
-				if(((TrapTile) currentTile).getTrap()=="lava"){
-					
-					return true;
-				}
-			}return false;
-		}
+		
+		//Check if Coordinate is on heal tile 
 		public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
 			
 			MapTile currentTile = currentView.get(currentPosition);
 			MapTile.Type currentType = currentTile.getType();
 			if(MapTile.Type.FINISH == currentType){
-			//	System.out.println("You found finish tile");
-					return true;
-				
-			}return false;
+				return true;				
+			}
+			return false;
 		}
 		//Print list of tiles
 		public void printMaze() {
@@ -759,8 +743,8 @@ public class MyAIController extends CarController{
 			
 			
 			
-			int totalX = (int) Math.ceil((mapWidth-4)/9)+1;
-			int totalY = (int) Math.ceil((mapHeight-4)/9)+1;
+			int totalX = (int) Math.ceil((mapWidth-5)/9)+1;
+			int totalY = (int) Math.ceil((mapHeight-5)/9)+1;
 			
 			for(int i=0; i<totalY ; i++) {
 				for(int j=0; j<totalX ; j++) {
