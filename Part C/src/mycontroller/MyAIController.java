@@ -189,7 +189,7 @@ public class MyAIController extends CarController{
 					
 						updateCount++;
 				
-						if(getSpeed()<=0 && updateCount %200 ==0) {
+						if(getSpeed()<=0 && updateCount %60 ==0) {
 							//System.out.println("stuck in the wall");
 							destination = new Coordinate(2,3);
 							
