@@ -62,7 +62,7 @@ public class MyAIController extends CarController{
 		PathFinder finder;
 		
 		// Car Speed to move at
-		private final double CAR_SPEED = 10;
+		private final double CAR_SPEED = 3; // 4.5 or >5 is good
 		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
@@ -110,11 +110,11 @@ public class MyAIController extends CarController{
 				}
 			}
 			if(once == 0) {
-				System.out.println("just once");
+				//System.out.println("just once");
 				startPosition = currentPosition;
 				locationShouldVisit(shouldVisitedTile,startPosition);
 				
-				System.out.println("startPosition"+ startPosition);
+				//System.out.println("startPosition"+ startPosition);
 				once = 1;
 				destination = startPosition;
 				
@@ -143,49 +143,54 @@ public class MyAIController extends CarController{
 					
 					//Otherwise search as normal
 					
-					System.out.println(updateCount);
+					//System.out.println(updateCount);
 					
-					System.out.println("SVT s"+shouldVisitedTile.get(s));
+					//System.out.println("SVT s"+shouldVisitedTile.get(s));
 					destination = new Coordinate(e,t);
 					recordTileTypeAroundTheCar(currentView,currentPosition);
 					if(haveAllKeyLocation() == true && k==0 && !finishTile.isEmpty() && !healTile.isEmpty()) {
-						System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
+						//System.out.println("YOU GOT ALL KEY LOCATION!!!!!!!");			
 						sortTileList(keyCollectorArrayList);
 						goToKeyLocation(mustVisitKeyTile,keyCollectorArrayList,startPosition);
 						k++;
 					}
 					if(haveOneHealTile() == true) {
-						System.out.println("YOU GOT ONE HEAL LOCATION!!!!!!!");			
+						//System.out.println("YOU GOT ONE HEAL LOCATION!!!!!!!");			
 						
 					}
-					if(k==1) {
-						System.out.println("START COLLECT THE KEY");	
-						if(inPosition(currentPosition, destination)|| l==0 ) {
-							e=mustVisitKeyTile.get(l).x;
-							t=mustVisitKeyTile.get(l).y;
-							l++;
+					
+						//System.out.println("START COLLECT THE KEY");	
+						if(inPosition(currentPosition, destination)&& !mustVisitKeyTile.isEmpty() ) {
+							e=mustVisitKeyTile.get(0).x;
+							t=mustVisitKeyTile.get(0).y;
+							mustVisitKeyTile.remove(0);
 						}
 						
 						
-					}
-					else if(inPosition(currentPosition, destination) || i==0) {
-						
-						e=shouldVisitedTile.get(i).x;
-						t=shouldVisitedTile.get(i).y;
-						i++;
-						
+					
+					else if(inRangeOfFour(currentPosition, destination)|| i==0) {
+						System.out.println("in RangeOfFour");
+						if(isWall(destination)) {
+							
+						}
+						if(inPosition(currentPosition, destination) || i==0) {
+							
+							e=shouldVisitedTile.get(i).x;
+							t=shouldVisitedTile.get(i).y;
+							i++;
+					}				
 					}
 					
 					testPath = finder.findPath(maze, currentPosition.x, currentPosition.y, e, t);
 					
 					
-					System.out.println("X"+e);
-					System.out.println("Y"+t);
+					//System.out.println("X"+e);
+					//System.out.println("Y"+t);
 					
 						updateCount++;
 				
 						if(getSpeed()<=0 && updateCount %200 ==0) {
-							System.out.println("stuck in the wall");
+							//System.out.println("stuck in the wall");
 							destination = new Coordinate(2,3);
 							
 							  
@@ -194,7 +199,7 @@ public class MyAIController extends CarController{
 						  reverseCount=50;
 						}
 						if(reverseCount>0) {
-							System.out.println("Enter reverse count");
+							//System.out.println("Enter reverse count");
 							 applyReverseAcceleration();
 							Coordinate southwall = new Coordinate(currentPosition.x,currentPosition.y-1);
 							if(isWall(southwall )) {
@@ -206,7 +211,7 @@ public class MyAIController extends CarController{
 							 return;
 						}
 
-						System.out.println("Current destination X="+e +" Y = " +t);
+					//	System.out.println("Current destination X="+e +" Y = " +t);
 
 				//As long as the path exists
 			if(testPath != null) {
@@ -682,16 +687,25 @@ public class MyAIController extends CarController{
 		//This how we check which point the car should visit to get every tile information
 		public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV, Coordinate startpoint) {
 			
-			int totalSV = (int) Math.ceil(totalTile/91);
+			
 			
 			int totalX = (int) Math.ceil((mapWidth-4)/9)+1;
 			int totalY = (int) Math.ceil((mapHeight-4)/9)+1;
 			
 			for(int i=0; i<totalY ; i++) {
 				for(int j=0; j<totalX ; j++) {
-					int x = 4+9*(j);
-					int y = mapHeight-4-9*(i);
-					
+					int x = 5+9*(j);
+					int y = mapHeight-5-9*(i);
+					if (x>=mapWidth) {
+						x=mapWidth;
+					}
+					if (y>=mapHeight) {
+						y=mapHeight;
+					}
+					if(x==mapWidth&&y==mapHeight) {
+						totalX =0;
+						totalY =0;
+					}
 					Coordinate coordinate = new Coordinate(x,y);
 					listSV.add(coordinate);
 					//listSV.add(startpoint);
