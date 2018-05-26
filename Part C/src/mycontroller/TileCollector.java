@@ -6,6 +6,13 @@ public class TileCollector {
 	public tiles.MapTile.Type tileType;
 	public int keyNumber;
 	
+	public TileCollector(utilities.Coordinate Coordinate) {
+		
+		location = Coordinate;
+		
+	}
+	
+	
 	public TileCollector(utilities.Coordinate Coordinate,tiles.MapTile.Type type) {
 		tileType = type;
 		location = Coordinate;
