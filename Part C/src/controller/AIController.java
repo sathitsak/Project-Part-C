@@ -120,7 +120,7 @@ public class AIController extends CarController {
 		else{
 			
 			// Readjust the car if it is misaligned.
-			System.out.println("CURRENT2"+getHealth());
+			
 			readjust(lastTurnDirection,delta);
 			
 			if(isTurningRight){

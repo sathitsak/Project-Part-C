@@ -22,7 +22,7 @@ import world.WorldSpatial;
 public class MyAIController extends CarController{
 	// How many minimum units the wall is away from the player.
 		private int wallSensitivity = 2;
-		
+		private int EAST_THRESHOLD = 3;
 		Coordinate startPosition =  new Coordinate(0, 0);
 		HashMap<Coordinate, MapTile> maze = new HashMap<Coordinate, MapTile>();
 		HashMap<Coordinate, Integer> KeyMap = new HashMap<Coordinate, Integer>();
@@ -260,13 +260,17 @@ public class MyAIController extends CarController{
 						Coordinate southwall = new Coordinate(currentPosition.x,currentPosition.y-1);
 						// if there is south wall turn left
 						if(isWall(southwall )) {
-							applyLeftTurn(getOrientation(),delta); 	
-						}else		
-							applyRightTurn(getOrientation(),delta); 
+							//lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+							//applyLeftTurn(getOrientation(),delta); 	
+							readjust(lastTurnDirection,delta);
+						}else
+							//lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+							//applyRightTurn(getOrientation(),delta); 
 							reverseCount--;
+							readjust(lastTurnDirection,delta);
 							return;
 						}
-
+						
 					//	System.out.println("Current destination X="+e +" Y = " +t);
 
 				//As long as the path exists
@@ -742,7 +746,7 @@ public class MyAIController extends CarController{
 		public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV, Coordinate startpoint) {
 			
 			
-			
+			// Car sensor range is 9 and -5 is to not let it go to map corner
 			int totalX = (int) Math.ceil((mapWidth-5)/9)+1;
 			int totalY = (int) Math.ceil((mapHeight-5)/9)+1;
 			
@@ -1004,7 +1008,75 @@ public class MyAIController extends CarController{
 			}
 				return false;		
 		}
-	
+		private void readjust(WorldSpatial.RelativeDirection lastTurnDirection, float delta) {
+			if(lastTurnDirection != null){
+				if(!isTurningRight && lastTurnDirection.equals(WorldSpatial.RelativeDirection.RIGHT)){
+					adjustRight(getOrientation(),delta);
+				}
+				else if(!isTurningLeft && lastTurnDirection.equals(WorldSpatial.RelativeDirection.LEFT)){
+					adjustLeft(getOrientation(),delta);
+				}
+			}
+			
+		}
+		private void adjustLeft(WorldSpatial.Direction orientation, float delta) {
+			
+			switch(orientation){
+			case EAST:
+				if(getAngle() > WorldSpatial.EAST_DEGREE_MIN+EAST_THRESHOLD){
+					turnRight(delta);
+				}
+				break;
+			case NORTH:
+				if(getAngle() > WorldSpatial.NORTH_DEGREE){
+					turnRight(delta);
+				}
+				break;
+			case SOUTH:
+				if(getAngle() > WorldSpatial.SOUTH_DEGREE){
+					turnRight(delta);
+				}
+				break;
+			case WEST:
+				if(getAngle() > WorldSpatial.WEST_DEGREE){
+					turnRight(delta);
+				}
+				break;
+				
+			default:
+				break;
+			}
+			
+		}
+
+		private void adjustRight(WorldSpatial.Direction orientation, float delta) {
+			switch(orientation){
+			case EAST:
+				if(getAngle() > WorldSpatial.SOUTH_DEGREE && getAngle() < WorldSpatial.EAST_DEGREE_MAX){
+					turnLeft(delta);
+				}
+				break;
+			case NORTH:
+				if(getAngle() < WorldSpatial.NORTH_DEGREE){
+					turnLeft(delta);
+				}
+				break;
+			case SOUTH:
+				if(getAngle() < WorldSpatial.SOUTH_DEGREE){
+					turnLeft(delta);
+				}
+				break;
+			case WEST:
+				if(getAngle() < WorldSpatial.WEST_DEGREE){
+					turnLeft(delta);
+				}
+				break;
+				
+			default:
+				break;
+			}
+			
+		}
 	
 	
 		
