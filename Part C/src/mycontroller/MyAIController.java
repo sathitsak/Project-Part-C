@@ -74,7 +74,8 @@ public class MyAIController extends CarController{
 		private static final int NoChange = 0;
 		private static int j = 1;
 		boolean FinishPath = true;
-		
+		private int EAST_THRESHOLD = 3;
+
 		public MyAIController(Car car) {
 			super(car);
 		}
@@ -253,9 +254,13 @@ public class MyAIController extends CarController{
 						  reverseCount=15;//10
 						}
 					
-					if(reverseCount>0) {
-							
+					if(reverseCount>0 &&!TileUtilities.inPosition(currentPosition, destination)) {
+						
 						applyReverseAcceleration();
+						readjust(lastTurnDirection,delta);
+						reverseCount--;	
+						return;
+						/*
 						//Check south wall
 						Coordinate southwall = new Coordinate(currentPosition.x,currentPosition.y-1);
 						// if there is south wall turn left
@@ -266,9 +271,9 @@ public class MyAIController extends CarController{
 							reverseCount--;
 							return;
 						}
-
+							*/
 					//	System.out.println("Current destination X="+e +" Y = " +t);
-
+					}
 				//As long as the path exists
 					if(testPath != null) {
 												
@@ -847,7 +852,78 @@ public class MyAIController extends CarController{
 		}
 	
 	
-	
+		private void readjust(WorldSpatial.RelativeDirection lastTurnDirection, float delta) {
+			if(lastTurnDirection != null){
+				if(!isTurningRight && lastTurnDirection.equals(WorldSpatial.RelativeDirection.RIGHT)){
+					adjustRight(getOrientation(),delta);
+				}
+				else if(!isTurningLeft && lastTurnDirection.equals(WorldSpatial.RelativeDirection.LEFT)){
+					adjustLeft(getOrientation(),delta);
+				}
+			}
+			
+		}
 		
+		/**
+		 * Try to orient myself to a degree that I was supposed to be at if I am
+		 * misaligned.
+		 */
+		private void adjustLeft(WorldSpatial.Direction orientation, float delta) {
+			
+			switch(orientation){
+			case EAST:
+				if(getAngle() > WorldSpatial.EAST_DEGREE_MIN+EAST_THRESHOLD){
+					turnRight(delta);
+				}
+				break;
+			case NORTH:
+				if(getAngle() > WorldSpatial.NORTH_DEGREE){
+					turnRight(delta);
+				}
+				break;
+			case SOUTH:
+				if(getAngle() > WorldSpatial.SOUTH_DEGREE){
+					turnRight(delta);
+				}
+				break;
+			case WEST:
+				if(getAngle() > WorldSpatial.WEST_DEGREE){
+					turnRight(delta);
+				}
+				break;
+				
+			default:
+				break;
+			}
+			
+		}
 		
+		private void adjustRight(WorldSpatial.Direction orientation, float delta) {
+			switch(orientation){
+			case EAST:
+				if(getAngle() > WorldSpatial.SOUTH_DEGREE && getAngle() < WorldSpatial.EAST_DEGREE_MAX){
+					turnLeft(delta);
+				}
+				break;
+			case NORTH:
+				if(getAngle() < WorldSpatial.NORTH_DEGREE){
+					turnLeft(delta);
+				}
+				break;
+			case SOUTH:
+				if(getAngle() < WorldSpatial.SOUTH_DEGREE){
+					turnLeft(delta);
+				}
+				break;
+			case WEST:
+				if(getAngle() < WorldSpatial.WEST_DEGREE){
+					turnLeft(delta);
+				}
+				break;
+				
+			default:
+				break;
+			}
+			
+		}
 }
