@@ -65,7 +65,7 @@ public class MyAIController extends CarController{
 		PathFinder finder;
 		
 		// Car Speed to move at
-		private  double CAR_SPEED = 3.1; //3.1 4.5 or >5 is good
+		private  double CAR_SPEED = 5; //3.1 4.5 or >5 is good
 		Coordinate currentPosition;
 		
 		// Offset used to differentiate between 0 and 360 degrees
@@ -157,7 +157,7 @@ public class MyAIController extends CarController{
 					System.out.println("HealSWitch"+healSwitch);
 					
 					//If Health get below 60 the AI will go back to nearest heal tile
-					if(getHealth()<60 && healSwitch==0) {
+					if(getHealth()<70 && healSwitch==0) {
 						
 						 tempx = destinationX;
 						 tempy = destinationY;
@@ -247,26 +247,63 @@ public class MyAIController extends CarController{
 						updateCount++;
 					//If the car crash
 					if(getSpeed()<=0 && updateCount %20 ==0) {
+						System.out.println("orientation" + getOrientation());
 						//apply reverse	  
-						applyReverseAcceleration();
+						//applyReverseAcceleration();
 						//set reverse count to apply constant ReverseAcceleration	
-						  reverseCount=15;//10
+						  reverseCount=20;//10,15
 						}
 					
-					if(reverseCount>0) {
-							
+					if(reverseCount>0 &&!inPosition(currentPosition, destination)) {
+						reverseCount--;	
 						applyReverseAcceleration();
 						//Check south wall
-						Coordinate southwall = new Coordinate(currentPosition.x,currentPosition.y-1);
+						/*
+						if(getOrientation().equals(WorldSpatial.Direction.SOUTH)) {
+							if(checkWest(currentView)){
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyLeftTurn(getOrientation(),delta);	
+							}else if(checkEast(currentView)){
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+								applyRightTurn(getOrientation(),delta);	
+							}
+							
+							
+						}
+						if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
+							
+							if(checkWest(currentView)){
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+								applyRightTurn(getOrientation(),delta);	
+							}else if(checkEast(currentView)){
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyLeftTurn(getOrientation(),delta);	
+							}
+						}
+						if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
+							
+							if(checkSouth(currentView)){
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyLeftTurn(getOrientation(),delta);	
+							}else if(checkNorth(currentView)){
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+								applyRightTurn(getOrientation(),delta);
+							}
+							
+						}
+						if(getOrientation().equals(WorldSpatial.Direction.WEST)) {
+							if(checkSouth(currentView)){
+								lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
+
+								applyRightTurn(getOrientation(),delta);	
+							}else {
+								lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
+								applyLeftTurn(getOrientation(),delta);	
+							}
+						}
+						*/
 						// if there is south wall turn left
-						if(isWall(southwall )) {
-							//lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
-							//applyLeftTurn(getOrientation(),delta); 	
-							readjust(lastTurnDirection,delta);
-						}else
-							//lastTurnDirection = WorldSpatial.RelativeDirection.RIGHT;
-							//applyRightTurn(getOrientation(),delta); 
-							reverseCount--;
+						
 							readjust(lastTurnDirection,delta);
 							return;
 						}
@@ -301,12 +338,15 @@ public class MyAIController extends CarController{
 					checkStateChange();
 					
 					//If Y changes
+					
 					if(nextStep.y != NoChange) {
+						
 						//If its northwards
 						if(nextStep.y > NoChange) {
 							//If not facing north, face north and drive
 							if(!getOrientation().equals(WorldSpatial.Direction.NORTH)) {
 								if(getOrientation().equals(WorldSpatial.Direction.EAST)) {
+									
 									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 									applyLeftTurn(getOrientation(),delta);
 								}
@@ -349,6 +389,7 @@ public class MyAIController extends CarController{
 						else {
 							//If not facing west, face west and drive
 							if(!getOrientation().equals(WorldSpatial.Direction.WEST)){
+								
 								if(getOrientation().equals(WorldSpatial.Direction.NORTH)) {
 									lastTurnDirection = WorldSpatial.RelativeDirection.LEFT;
 									applyLeftTurn(getOrientation(),delta);
@@ -359,6 +400,7 @@ public class MyAIController extends CarController{
 									}
 							}
 						}
+						
 					}
 					
 					
@@ -1078,7 +1120,21 @@ public class MyAIController extends CarController{
 			
 		}
 	
-	
+		private boolean checkWallAhead(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView){
+			switch(orientation){
+			case EAST:
+				return checkEast(currentView);
+			case NORTH:
+				return checkNorth(currentView);
+			case SOUTH:
+				return checkSouth(currentView);
+			case WEST:
+				return checkWest(currentView);
+			default:
+				return false;
+			
+			}
+		}
 		
 		
 }

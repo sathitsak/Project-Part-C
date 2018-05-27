@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import tiles.MapTile;
+import tiles.TrapTile;
 import utilities.Coordinate;
 
 
@@ -142,6 +143,17 @@ public class AStarPathFinder implements PathFinder{
 						// in the sorted open list
 
 						float nextStepCost = current.cost + getMovementCost(current.x, current.y, xp, yp);
+						Coordinate coord = new Coordinate(x, y);
+//						MapTile currentTile = currentView.get(currentPosition);
+						MapTile mt =  map.get(coord);
+						MapTile.Type currentType = mt.getType();
+						
+					
+						
+						if(MapTile.Type.TRAP == currentType){				
+							if(((TrapTile) mt).getTrap()=="lava"){				
+								 nextStepCost = current.cost + getMovementCost(current.x, current.y, xp, yp)+100;
+							}}
 						Node neighbour = nodes[xp][yp];
 //						world.pathFinderVisited(xp, yp);
 						
