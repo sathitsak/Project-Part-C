@@ -48,7 +48,7 @@ public class MyAIController extends CarController{
 		int i = 0;
 		int k = 0;
 		
-		
+		TileUtilities TileUtilities = new TileUtilities();
 		
 		int tempx;
 		int tempy;
@@ -161,19 +161,19 @@ public class MyAIController extends CarController{
 						
 						 tempx = destinationX;
 						 tempy = destinationY;
-						 destinationX= nearestTileInList(currentPosition,healTile).x;
-						 destinationY= nearestTileInList(currentPosition,healTile).y;
+						 destinationX= TileUtilities.nearestTileInList(currentPosition,healTile).x;
+						 destinationY= TileUtilities.nearestTileInList(currentPosition,healTile).y;
 						System.out.println("tempx = "+tempx+ "tempy = "+tempy);
 						healSwitch =1;
 						healTileSwitch =1;
 					}
 					//If it  takes too long to get to heal tile will find the nearest again
 					if(updateCount %300 ==0&& healSwitch==1) {
-						destinationX= nearestTileInList(currentPosition,healTile).x;
-						destinationY= nearestTileInList(currentPosition,healTile).y;
+						destinationX= TileUtilities.nearestTileInList(currentPosition,healTile).x;
+						destinationY= TileUtilities.nearestTileInList(currentPosition,healTile).y;
 					}
 					//If land on heal tile set destination to current location so car stop
-					if(landOnHealTile(currentView,currentPosition)&& healSwitch==1) {
+					if(TileUtilities.landOnHealTile(currentView,currentPosition)&& healSwitch==1) {
 						
 						destinationX= currentPosition.x;
 						destinationY= currentPosition.y;
@@ -197,7 +197,7 @@ public class MyAIController extends CarController{
 						// If We found all the key location, one heal tile, and finish tile, the car is ready to escape					
 						if(haveAllKeyLocation() == true && k==0 && !finishTile.isEmpty() && !healTile.isEmpty()) {
 							//Sort key coordinate in arraylist by key number from large to small
-							sortTileList(keyCollectorArrayList);
+							TileUtilities.sortTileList(keyCollectorArrayList);
 						
 							// The key and finish tile will be combine into one Arraylist
 							prepareEscapePlan(mustVisitKeyTile,keyCollectorArrayList);
@@ -208,7 +208,7 @@ public class MyAIController extends CarController{
 					
 					
 					// This wil start the escape plan
-						if(inPosition(currentPosition, destination)&& !mustVisitKeyTile.isEmpty() ) {
+						if(TileUtilities.inPosition(currentPosition, destination)&& !mustVisitKeyTile.isEmpty() ) {
 							destinationX=mustVisitKeyTile.get(0).x;
 							destinationY=mustVisitKeyTile.get(0).y;
 							mustVisitKeyTile.remove(0);
@@ -219,7 +219,7 @@ public class MyAIController extends CarController{
 						else if(mustVisitKeyTile.isEmpty()) {
 						
 						// If shouldVisitLocation is wall, we will shift it
-							if(inRangeOfA(currentPosition, destination,4) ) {
+							if(TileUtilities.inRangeOfA(currentPosition, destination,4) ) {
 						
 								if(isWall(destination)) {
 									destinationX=shouldVisitedTile.get(i).x;
@@ -228,7 +228,7 @@ public class MyAIController extends CarController{
 							
 							// This is to check if Car reach should visit location or not
 							// i is index for getting the location from list
-								if(inPosition(currentPosition, destination) || i==0 ) {							
+								if(TileUtilities.inPosition(currentPosition, destination) || i==0 ) {							
 									destinationX=shouldVisitedTile.get(i).x;
 									destinationY=shouldVisitedTile.get(i).y;
 									i++;
@@ -480,133 +480,22 @@ public class MyAIController extends CarController{
 		}
 		
 
-		/**
-		 * Method below just iterates through the list and check in the correct coordinates.
-		 * i.e. Given your current position is 10,10
-		 * checkEast will check up to wallSensitivity amount of tiles to the right.
-		 * checkWest will check up to wallSensitivity amount of tiles to the left.
-		 * checkNorth will check up to wallSensitivity amount of tiles to the top.
-		 * checkSouth will check up to wallSensitivity amount of tiles below.
-		 */
-		public boolean checkEast(HashMap<Coordinate, MapTile> currentView){
-			// Check tiles to my right
-			Coordinate currentPosition = new Coordinate(getPosition());
-			for(int i = 0; i <= wallSensitivity; i++){
-				MapTile tile = currentView.get(new Coordinate(currentPosition.x+i, currentPosition.y));
-				if(tile.isType(MapTile.Type.WALL)){
-					return true;
-				}
-			}
-			return false;
-		}
 		
-		public boolean checkWest(HashMap<Coordinate,MapTile> currentView){
-			// Check tiles to my left
-			Coordinate currentPosition = new Coordinate(getPosition());
-			for(int i = 0; i <= wallSensitivity; i++){
-				MapTile tile = currentView.get(new Coordinate(currentPosition.x-i, currentPosition.y));
-				if(tile.isType(MapTile.Type.WALL)){
-					return true;
-				}
-			}
-			return false;
-		}
 		
-		public boolean checkNorth(HashMap<Coordinate,MapTile> currentView){
-			// Check tiles to towards the top
-			Coordinate currentPosition = new Coordinate(getPosition());
-			for(int i = 0; i <= wallSensitivity; i++){
-				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y+i));
-				if(tile.isType(MapTile.Type.WALL)){
-					return true;
-				}
-			}
-			return false;
-		}
 		
-		public boolean checkSouth(HashMap<Coordinate,MapTile> currentView){
-			// Check tiles towards the bottom
-			Coordinate currentPosition = new Coordinate(getPosition());
-			for(int i = 0; i <= wallSensitivity; i++){
-				MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y-i));
-				if(tile.isType(MapTile.Type.WALL)){
-					return true;
-				}
-			}
-			return false;
-		}
-		
-		public boolean searchForDuplicateCoordinate(ArrayList<Coordinate> arrayList, Coordinate coordinate) {
-			for(int i=0; i<arrayList.size();i++) {
-				Coordinate coo = arrayList.get(i);
-				;
-				if(coordinate.equals(coo)) {
-				
-					return true;
-				}
-			}
-			
-			//System.out.println("not dup");
-			return false;
-		}
 		
 		// If have at least one heal tile in memory return true
-		public boolean haveOneHealTile() {
-			if (HealMap.size()>0) {
-				return true;
-			}
-			return false;
-		}
+		
 		
 		
 		//Check if Coordinate is on lava tile with a key inside
-		public boolean landOnLavaTileWithKey(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
-			
-			MapTile currentTile = currentView.get(currentPosition);
-			MapTile.Type currentType = currentTile.getType();
-			if(MapTile.Type.TRAP == currentType){
-				
-				if(((TrapTile) currentTile).getTrap()=="lava"){
-					
-					TrapTile a = (TrapTile) currentTile;
-					LavaTrap b = (LavaTrap) a;
-					
-					if(b.getKey() > 0) {
-						//System.out.println("GET KEY "+b.getKey());
-					return true;}
-				}
-			}return false;
-		}
+		
 		
 		//Get key number from lava tile with a key inside
-		public int getKeyNum(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
-			MapTile currentTile = currentView.get(currentPosition);	
-			TrapTile a = (TrapTile) currentTile;
-			LavaTrap b = (LavaTrap) a;				
-			return b.getKey();			
-		}
+		
 		
 		//Check if Coordinate is on heal tile 
-		public boolean landOnHealTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {			
-			MapTile currentTile = currentView.get(currentPosition);
-			MapTile.Type currentType = currentTile.getType();
-			if(MapTile.Type.TRAP == currentType){				
-				if(((TrapTile) currentTile).getTrap()=="health"){				
-					return true;
-				}
-			}return false;
-		}
 		
-		//Check if Coordinate is on heal tile 
-		public boolean landOnFinishTile(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
-			
-			MapTile currentTile = currentView.get(currentPosition);
-			MapTile.Type currentType = currentTile.getType();
-			if(MapTile.Type.FINISH == currentType){
-				return true;				
-			}
-			return false;
-		}
 		//Print list of tiles
 		public void printMaze() {
 			Iterator it = this.maze.entrySet().iterator();
@@ -721,22 +610,6 @@ public class MyAIController extends CarController{
 		
 		
 		// Check if the current coordinate is in range of 4*4(91 tiles) of the destination coordinate or not.
-		public boolean inRangeOfA(Coordinate current,Coordinate destination, int a) {
-			if (current.x < destination.x+a && current.x > destination.x-a ) {
-				if (current.y < destination.y+a && current.y > destination.y-a ) {
-					return true;
-				}				
-			}return false;
-		}
-		
-		// Check if the car had reached the destination or not
-		public boolean inPosition(Coordinate current,Coordinate destination) {
-			if (current.x == destination.x  ) {
-				if (current.y == destination.y ) {
-					return true;
-				}				
-			}return false;
-		}
 		
 		//This how we check which point the car should visit to get every tile information
 		public ArrayList<Coordinate> locationShouldVisit(ArrayList<Coordinate> listSV, Coordinate startpoint) {
@@ -790,20 +663,7 @@ public class MyAIController extends CarController{
 		}
 		
 		//Sort key in Arraylist to be in order
-		public ArrayList<TileCollector> sortTileList( ArrayList<TileCollector> listSV) {
 	
-			int size =listSV.size();
-			for (int i = 0; i < size-1; i++) {
-
-                if (listSV.get(i).getKeyNum() < listSV.get(i+1).getKeyNum()) {
-                   TileCollector temp1= listSV.get(i + 1);
-                    TileCollector temp2= listSV.get(i);
-                    listSV.set(i,temp1);
-                    listSV.set(i+1,temp2);
-                }
-            }			
-				return listSV;
-		}
 		
 		// Record 100 Tiles around the car
 		public void recordTileTypeAroundTheCar(HashMap<Coordinate, MapTile> currentView, Coordinate currentPosition) {
@@ -814,12 +674,12 @@ public class MyAIController extends CarController{
 							MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y+y));				
 							Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y+y);
 			//If found tile with key store in special TileCollector				
-							if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+							if(TileUtilities.landOnLavaTileWithKey(currentView,scanCoo)) {	
 								
-								if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+								if(TileUtilities.searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
 										keyTile.add(scanCoo);
 									//	System.out.println("KEY TILE"+keyTile);
-										int keyNum = getKeyNum(currentView, scanCoo);
+										int keyNum = TileUtilities.getKeyNum(currentView, scanCoo);
 										TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 										keyCollectorArrayList.add(keyTC);
 								//		System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
@@ -830,15 +690,15 @@ public class MyAIController extends CarController{
 							}
 							
 			// For healTile we just going to remember it location so we use Coordinator				
-							if(landOnHealTile(currentView,scanCoo)) {
-								if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+							if(TileUtilities.landOnHealTile(currentView,scanCoo)) {
+								if(TileUtilities.searchForDuplicateCoordinate(healTile, scanCoo) == false) {
 									healTile.add(scanCoo);
 									//System.out.println("Heal TILE"+healTile);
 								}
 								
 							}
 			// Record every Tile	
-							if(landOnFinishTile(currentView,scanCoo)) {
+							if(TileUtilities.landOnFinishTile(currentView,scanCoo)) {
 								finishTile.add(scanCoo);
 							}
 							MapTile.Type scanType = scanTile.getType();
@@ -854,14 +714,14 @@ public class MyAIController extends CarController{
 					MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y+y));				
 					Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y+y);
 					
-					if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+					if(TileUtilities.landOnLavaTileWithKey(currentView,scanCoo)) {	
 						
-						if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+						if(TileUtilities.searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
 								//keyTile.add(scanCoo);
 								//System.out.println("KEY TILE"+keyTile);
 							keyTile.add(scanCoo);
 							//	System.out.println("KEY TILE"+keyTile);
-								int keyNum = getKeyNum(currentView, scanCoo);
+								int keyNum = TileUtilities.getKeyNum(currentView, scanCoo);
 								TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 								keyCollectorArrayList.add(keyTC);
 							//	System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
@@ -870,14 +730,14 @@ public class MyAIController extends CarController{
 						
 					}
 					
-					if(landOnHealTile(currentView,scanCoo)) {
-						if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+					if(TileUtilities.landOnHealTile(currentView,scanCoo)) {
+						if(TileUtilities.searchForDuplicateCoordinate(healTile, scanCoo) == false) {
 							healTile.add(scanCoo);
 							//System.out.println("Heal TILE"+healTile);
 						}
 						
 					}
-					if(landOnFinishTile(currentView,scanCoo)) {
+					if(TileUtilities.landOnFinishTile(currentView,scanCoo)) {
 						finishTile.add(scanCoo);
 					}
 					MapTile.Type scanType = scanTile.getType();
@@ -895,14 +755,14 @@ public class MyAIController extends CarController{
 							MapTile scanTile = currentView.get(new Coordinate(currentPosition.x-x, currentPosition.y-y));				
 							Coordinate scanCoo = new Coordinate(currentPosition.x-x, currentPosition.y-y);
 							
-							if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+							if(TileUtilities.landOnLavaTileWithKey(currentView,scanCoo)) {	
 								
-								if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+								if(TileUtilities.searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
 										//keyTile.add(scanCoo);
 										//System.out.println("KEY TILE"+keyTile);
 									keyTile.add(scanCoo);
 									//	System.out.println("KEY TILE"+keyTile);
-										int keyNum = getKeyNum(currentView, scanCoo);
+										int keyNum = TileUtilities.getKeyNum(currentView, scanCoo);
 										TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 										keyCollectorArrayList.add(keyTC);
 									//	System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
@@ -912,14 +772,14 @@ public class MyAIController extends CarController{
 							}
 							
 							
-							if(landOnHealTile(currentView,scanCoo)) {
-								if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+							if(TileUtilities.landOnHealTile(currentView,scanCoo)) {
+								if(TileUtilities.searchForDuplicateCoordinate(healTile, scanCoo) == false) {
 									healTile.add(scanCoo);
 									//System.out.println("Heal TILE"+healTile);
 								}
 								
 							}
-							if(landOnFinishTile(currentView,scanCoo)) {
+							if(TileUtilities.landOnFinishTile(currentView,scanCoo)) {
 								finishTile.add(scanCoo);
 							}
 							MapTile.Type scanType = scanTile.getType();
@@ -937,14 +797,14 @@ public class MyAIController extends CarController{
 					MapTile scanTile = currentView.get(new Coordinate(currentPosition.x+x, currentPosition.y-y));				
 					Coordinate scanCoo = new Coordinate(currentPosition.x+x, currentPosition.y-y);
 					
-						if(landOnLavaTileWithKey(currentView,scanCoo)) {	
+						if(TileUtilities.landOnLavaTileWithKey(currentView,scanCoo)) {	
 						
-						if(searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
+						if(TileUtilities.searchForDuplicateCoordinate(keyTile, scanCoo) == false) {
 								//keyTile.add(scanCoo);
 								//System.out.println("KEY TILE"+keyTile);
 							keyTile.add(scanCoo);
 							//	System.out.println("KEY TILE"+keyTile);
-								int keyNum = getKeyNum(currentView, scanCoo);
+								int keyNum = TileUtilities.getKeyNum(currentView, scanCoo);
 								TileCollector keyTC = new TileCollector(scanCoo,keyNum);
 								keyCollectorArrayList.add(keyTC);
 								System.out.println("KEY TILE"+keyTC.getCoordinate()+"KEY NUM"+keyTC.getKeyNum());
@@ -954,14 +814,14 @@ public class MyAIController extends CarController{
 					}
 					
 					
-					if(landOnHealTile(currentView,scanCoo)) {
-						if(searchForDuplicateCoordinate(healTile, scanCoo) == false) {
+					if(TileUtilities.landOnHealTile(currentView,scanCoo)) {
+						if(TileUtilities.searchForDuplicateCoordinate(healTile, scanCoo) == false) {
 							healTile.add(scanCoo);
 							//System.out.println("Heal TILE"+healTile);
 						}
 						
 					}
-					if(landOnFinishTile(currentView,scanCoo)) {
+					if(TileUtilities.landOnFinishTile(currentView,scanCoo)) {
 						finishTile.add(scanCoo);
 					}
 					MapTile.Type scanType = scanTile.getType();
@@ -975,26 +835,7 @@ public class MyAIController extends CarController{
 			
 			
 			}
-		public Coordinate  nearestTileInList(Coordinate current,ArrayList<Coordinate> list) {
-			int Xc = current.x;
-			int Yc = current.y;
-			double leastDistance = 10000;
-			double distance;
-			Coordinate nearest = new Coordinate(0, 0);
-			for(int i = 0; i<list.size();i++) {
-				int Xd = list.get(i).x;
-				int Yd = list.get(i).y;
-				
-				 distance= (Math.sqrt((((Xc-Xd)^2))+(((Yc-Yd)^2))));
-				if(distance<leastDistance) {
-					leastDistance = distance;
-					nearest = list.get(i);
-				}				
-			}
-			
-			return nearest;
-			
-		}
+		
 		
 		//Check if car have every tile with key location
 		public boolean haveAllKeyLocation() {
